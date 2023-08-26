@@ -1,0 +1,15 @@
+{
+  "compilerOptions": {
+    // "module": "commonjs",
+    "module": "NodeNext",
+    "esModuleInterop": true,
+    "target": "es6",
+    "moduleResolution": "node",
+    "outDir": "dist",
+    "baseUrl": "src",
+    "sourceMap": true,
+    "noImplicitAny": true
+  },
+  "include": ["src/**/*"],
+  "lib": ["es2015"]
+}
