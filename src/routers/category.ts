@@ -4,6 +4,7 @@ import {
   createCategory,
   updateCategory,
   getCategory,
+  deleteCategory
 } from "../controllers/category";
 import uploadCloud from "../middlewares/uploadCloud";
 
@@ -17,6 +18,7 @@ router
 router
   .route("/:id")
   .get(getCategory)
-  .patch(uploadCloud.single("image"), updateCategory);
+  .patch(uploadCloud.single("image"), updateCategory)
+  .delete(deleteCategory)
 
 export default router;

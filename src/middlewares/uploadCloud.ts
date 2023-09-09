@@ -14,7 +14,7 @@ const storage = new CloudinaryStorage({
   params: async (req: Request, file: File) => {
     return {
       folder: "agriculture_traceability",
-      allowedFormats: ["png", "jpeg"],
+      allowedFormats: ["png", "jpeg"]
     };
   },
 });

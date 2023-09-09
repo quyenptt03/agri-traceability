@@ -46,61 +46,65 @@ const getCategory = async (req: Request, res: Response) => {
 };
 
 const updateCategory = async (req: Request, res: Response) => {
-  // const { id: categoryId } = req.params;
-  // const image = req.file;
-  // let updateData = { ...req.body };
-  // const category = await Category.findOne({ _id: categoryId });
-  // if (!category) {
-  //   throw new CustomError.NotFoundError(`No category with id ${categoryId}`);
-  // }
-  // const public_id = category.image.split("/").slice(-2).join("/").split(".")[0];
+  const { id: categoryId } = req.params;
+  const { name, description } = req.body;
+  const image = req.file;
 
-  // if (image) {
-  //   cloudinary.uploader.destroy(public_id, function (error, result) {
-  //     console.log(result, error);
-  //   });
-  //   updateData = { ...updateData, image: image.path };
-  // }
+    const category = await Category.findById(categoryId);
+    if (!category) {
+      throw new CustomError.NotFoundError(`No category with id ${categoryId}`);
+    }
 
-  // const cat = await Category.findOneAndUpdate({ _id: categoryId }, updateData, {
-  //   new: true,
-  //   runValidators: true,
-  // });
+    if (name && name !== category.name) {
+      const isExist = await Category.findOne({ slug: slugify(name) });
 
-  // res.status(StatusCodes.OK).json({ cat });
+      if (isExist) {
+        cloudinary.uploader.destroy(image.filename);
+        throw new CustomError.BadRequestError("Category name already exists");
+      }
+    }
+    
+    if (name) {
+      category.name = name;
+      category.slug = slugify(name);
+    }
 
-  // const { id: categoryId } = req.params;
-  // const image = req.file;
-  // let updateData = { ...req.body };
-  // const category = await Category.findOne({ _id: categoryId });
-  // if (!category) {
-  //   throw new CustomError.NotFoundError(`No category with id ${categoryId}`);
-  // }
-  // const public_id = category.image.split("/").slice(-2).join("/").split(".")[0];
-  // if (updateData.name) {
-  //   const category = await Category.findOne({ _id: categoryId });
-  //   if (!category) {
-  //     throw new CustomError.NotFoundError(`No category with id ${categoryId}`);
-  //   }
-  // }
-  // const cat = await Category.findOneAndUpdate({ _id: categoryId }, updateData, {
-  //   new: true,
-  //   runValidators: true,
-  // });
-  // // if (cat.invalidate) {
-  // //   cloudinary.uploader.destroy(image.filename);
-  // // }
-  // if (image) {
-  //   cloudinary.uploader.destroy(public_id, function (error, result) {
-  //     console.log(result, error);
-  //   });
-  // }
+    if (description) {
+      category.description = description;
+    }
 
-  const { _id: categoryId } = req.params;
-  const isExistCat = await Category.findOne({ _id: categoryId });
-  if (!isExistCat) {
-    throw new CustomError.NotFoundError(`No category with id ${categoryId}`);
-  }
+    if (image) {
+      if (category.image) {
+        const pre_public_id = category.image.split("/").slice(-2).join("/").split(".")[0];
+        await cloudinary.uploader.destroy(pre_public_id);
+      }
+
+      category.image = image.path;
+    }
+
+    await category.save();
+
+    res.status(StatusCodes.OK).json({ category });
+
+
 };
 
-export { getAllCategories, createCategory, getCategory, updateCategory };
+const deleteCategory = async (req:Request, res: Response) => {
+  const {id: categoryId } = req.params;
+
+  const category = await Category.findOne({_id: categoryId});
+
+  if(!category) {
+    throw new CustomError.NotFoundError(`No category with id ${categoryId}`);
+  }
+
+  await category.deleteOne();
+  if (category.image) {
+    const pre_public_id = category.image.split("/").slice(-2).join("/").split(".")[0];
+    await cloudinary.uploader.destroy(pre_public_id);
+  }
+
+  res.status(StatusCodes.OK).json({msg: "Success! Category removed."})
+}
+
+export { getAllCategories, createCategory, getCategory, updateCategory, deleteCategory };
