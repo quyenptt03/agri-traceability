@@ -1,4 +1,4 @@
-import { Schema, model, Types } from "mongoose";
+import { Schema, model, Types } from 'mongoose';
 
 interface ICategory {
   name: string;
@@ -12,8 +12,8 @@ const categorySchema = new Schema<ICategory>(
     name: {
       type: String,
       trim: true,
-      required: [true, "Please provide category name"],
-      maxLength: [100, "Name can not be more than 100 characters"],
+      required: [true, 'Please provide category name'],
+      maxLength: [100, 'Name can not be more than 100 characters'],
     },
     slug: {
       type: String,
@@ -24,14 +24,14 @@ const categorySchema = new Schema<ICategory>(
     },
     description: {
       type: String,
-      required: [true, "Please provide category description"],
+      required: [true, 'Please provide category description'],
     },
     image: {
       type: String,
-      required: [true, "Please provide category image"],
+      required: [true, 'Please provide category image'],
     },
   },
   { timestamps: true }
 );
 
-export default model<ICategory>("Category", categorySchema);
+export default model<ICategory>('Category', categorySchema);

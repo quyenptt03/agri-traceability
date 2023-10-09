@@ -1,14 +1,23 @@
-import { config } from "dotenv";
-import "express-async-errors";
+import { config } from 'dotenv';
+import 'express-async-errors';
 //express
-import express from "express";
+import express from 'express';
 //database
-import connectDB from "./db/connect";
+import connectDB from './db/connect';
 //routes
-import categoryRouter from "./routers/category";
-import bodyParser from "body-parser";
-import upload from "multer";
-import errorHandlerMiddleware from "./middlewares/error-handler";
+import {
+  activityRouter,
+  categoryRouter,
+  cultivationLogRouter,
+  farmingAreaRouter,
+  farmProductRouter,
+  pestCategoryRouter,
+  qrCodeRouter,
+} from './routers';
+
+//middlewares
+import bodyParser from 'body-parser';
+import errorHandlerMiddleware from './middlewares/error-handler';
 
 //config dotenv
 config();
@@ -17,13 +26,19 @@ const app = express();
 const port = process.env.PORT || 5000;
 
 app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.urlencoded({ extended: true }));
 
-app.get("/", (req, res) => {
-  res.send("Hello World!");
+app.get('/', (req, res) => {
+  res.send('Hello World!');
 });
 
-app.use("/api/v1/categories", categoryRouter);
+app.use('/api/v1/categories', categoryRouter);
+app.use('/api/v1/farming-areas', farmingAreaRouter);
+app.use('/api/v1/farm-products', farmProductRouter);
+app.use('/api/v1/cultivation-logs', cultivationLogRouter);
+app.use('/api/v1/activities', activityRouter);
+app.use('/api/v1/pest-categories', pestCategoryRouter);
+app.use('/api/v1/qrcode', qrCodeRouter);
 
 app.use(errorHandlerMiddleware);
 

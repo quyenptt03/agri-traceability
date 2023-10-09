@@ -1,4 +1,5 @@
-import { Schema, model, Types } from "mongoose";
+import { object } from 'joi';
+import { Schema, model, Types } from 'mongoose';
 
 interface IFarmProduct {
   name: string;
@@ -6,11 +7,11 @@ interface IFarmProduct {
   description: string;
   origin: string;
   variety: string;
-  average_lifespan: number;
+  cultivation_time: string;
   type: string;
-  images: [string];
+  images: object[];
   farming_area: Types.ObjectId;
-  qr_code: string;
+  qrcode: string;
 }
 
 const farmProductSchema = new Schema<IFarmProduct>(
@@ -18,53 +19,52 @@ const farmProductSchema = new Schema<IFarmProduct>(
     name: {
       type: String,
       trim: true,
-      required: [true, "Please provide farm product name"],
-      maxLength: [100, "Name can not be more than 100 characters"],
+      required: [true, 'Please provide farm product name'],
+      maxLength: [100, 'Name can not be more than 100 characters'],
     },
     category: {
       type: Schema.Types.ObjectId,
-      ref: "Category",
+      ref: 'Category',
       require: true,
     },
     description: {
       type: String,
-      required: [true, "Please provide farm product description"],
+      required: [true, 'Please provide farm product description'],
     },
     origin: {
       type: String,
-      required: [true, "Please provide farm product origin"],
-      default: "Vietnam",
+      default: 'Vietnam',
     },
-    variety: {
+    cultivation_time: {
       type: String,
-      required: [true, "Please provide farm product variety"],
-    },
-    average_lifespan: {
-      type: Number,
-      required: [true, "Please provide farm product average lifespan"],
     },
     type: {
       type: String,
-      required: [true, "Please provide farm product type"],
+      required: [true, 'Please provide farm product type'],
       enum: {
-        values: ["Plant", "Animal"],
-        message: "{VALUE} is not supported",
+        values: ['Plant', 'Animal'],
+        message: '{VALUE} is not supported',
       },
     },
     images: {
-      type: [String],
-      required: [true, "Please provide farm product images"],
+      type: [
+        {
+          path: String,
+          filename: String,
+        },
+      ],
+      required: [true, 'Please provide farm product images'],
     },
     farming_area: {
       type: Schema.Types.ObjectId,
-      ref: "FarmingArea",
+      ref: 'FarmingArea',
       require: true,
     },
-    qr_code: {
+    qrcode: {
       type: String,
     },
   },
   { timestamps: true }
 );
 
-export default model<IFarmProduct>("FarmProduct", farmProductSchema);
+export default model<IFarmProduct>('FarmProduct', farmProductSchema);
