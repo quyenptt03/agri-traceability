@@ -3,11 +3,7 @@ import { StatusCodes } from 'http-status-codes';
 import CustomError from '../errors';
 import { Activity, CultivationLog, FarmProduct } from '../models';
 import { v2 as cloudinary } from 'cloudinary';
-
-const deleteImages = async (imageUrls: object[]) => {
-  const publicIds = imageUrls.map((imgUrl: any) => imgUrl.filename);
-  await cloudinary.api.delete_resources(publicIds);
-};
+import { remove, upload } from './cloudinary';
 
 const getAllCultivationLogs = async (req: Request, res: Response) => {
   const cultivationLogs = await CultivationLog.find({}).populate({
@@ -22,13 +18,8 @@ const getAllCultivationLogs = async (req: Request, res: Response) => {
 
 const createCultivationLog = async (req: Request, res: Response) => {
   const { farmProductId, activityId, notes } = req.body;
-  const images = req.files as Express.Multer.File[];
-  const imageUrls = images.map((image) => {
-    return { path: image.path, filename: image.filename };
-  });
 
   if (!farmProductId || !activityId) {
-    await deleteImages(imageUrls);
     throw new CustomError.BadRequestError(
       'Please provide farm product id, activity id'
     );
@@ -38,7 +29,6 @@ const createCultivationLog = async (req: Request, res: Response) => {
   const activity = await Activity.findOne({ _id: activityId });
 
   if (!farmProduct || !activity) {
-    await deleteImages(imageUrls);
     throw new CustomError.BadRequestError(
       'Farm product or activity does not exist'
     );
@@ -48,7 +38,6 @@ const createCultivationLog = async (req: Request, res: Response) => {
     farm_product: farmProduct._id,
     activity: activity._id,
     notes,
-    images: imageUrls,
   });
 
   res.status(StatusCodes.CREATED).json({ cultivationLog });
@@ -82,7 +71,40 @@ const getCultivationLogsByFarmProduct = async (req: Request, res: Response) => {
   res.status(StatusCodes.OK).json({ cultivationLogs });
 };
 
-const updateCultivationLog = async (req: Request, res: Response) => {};
+const updateCultivationLog = async (req: Request, res: Response) => {
+  const { id: cultivationLogId } = req.params;
+  const { farmProductId, activityId, notes } = req.body;
+
+  const cultivationLog = await CultivationLog.findOne({
+    _id: cultivationLogId,
+  });
+  if (!cultivationLog) {
+    throw new CustomError.NotFoundError(
+      `No cultivation log with id ${cultivationLogId}`
+    );
+  }
+  if (notes) {
+    (await cultivationLog).notes = notes;
+  }
+
+  if (farmProductId) {
+    const farmProduct = await FarmProduct.findOne({ _id: farmProductId });
+    if (!farmProduct) {
+      throw new CustomError.BadRequestError(`Farm product does not exists`);
+    }
+    cultivationLog.farm_product = farmProduct._id;
+  }
+
+  if (activityId) {
+    const activity = await Activity.findOne({ _id: activityId });
+    if (!activity) {
+      throw new CustomError.BadRequestError(`Activity does not exists`);
+    }
+    cultivationLog.activity = activity._id;
+  }
+  await cultivationLog.save();
+  res.status(StatusCodes.OK).json({ cultivationLog });
+};
 
 const deleteCultivationLog = async (req: Request, res: Response) => {
   const { id: cultivationLogId } = req.params;
@@ -96,9 +118,36 @@ const deleteCultivationLog = async (req: Request, res: Response) => {
   }
   await cultivationLog.deleteOne();
   if (cultivationLog.images) {
-    deleteImages(cultivationLog.images);
+    remove(cultivationLog.images);
   }
   res.status(StatusCodes.OK).json({ msg: 'Success! Cultivation log removed.' });
+};
+
+const uploadImages = async (req: Request, res: Response) => {
+  if (!req.files) {
+    throw new CustomError.BadRequestError('No files uploaded');
+  }
+  const { id: cultivationLogId } = req.params;
+  const images = req.files as Express.Multer.File[];
+  const imageUrls = await upload(images);
+
+  const cultivationLog = await CultivationLog.findOne({
+    _id: cultivationLogId,
+  });
+  if (!cultivationLog) {
+    remove(imageUrls);
+    throw new CustomError.NotFoundError(
+      `No cultivation log with id ${cultivationLogId}`
+    );
+  }
+  if (cultivationLog.images.length !== 0) {
+    remove(cultivationLog.images);
+  }
+
+  cultivationLog.images = imageUrls;
+  cultivationLog.save();
+
+  res.status(StatusCodes.CREATED).json({ cultivationLog });
 };
 
 export {
@@ -108,4 +157,5 @@ export {
   getCultivationLogsByFarmProduct,
   updateCultivationLog,
   deleteCultivationLog,
+  uploadImages,
 };
