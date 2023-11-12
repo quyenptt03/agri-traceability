@@ -4,6 +4,7 @@ import { StatusCodes } from 'http-status-codes';
 import { v2 as cloudinary } from 'cloudinary';
 import slugify from 'slugify';
 import CustomError from '../errors';
+import { remove, upload } from './cloudinary';
 
 const getAllCategories = async (req: Request, res: Response) => {
   const categories = await Category.find({});
@@ -12,25 +13,17 @@ const getAllCategories = async (req: Request, res: Response) => {
 
 const createCategory = async (req: Request, res: Response) => {
   const { name, description } = req.body;
-  const image = req.file;
 
   if (!name || !description) {
-    await cloudinary.uploader.destroy(image.filename);
     throw new CustomError.BadRequestError(
       'Please provide name and description'
     );
   }
 
-  const isExist = await Category.findOne({ slug: slugify(name) });
-  if (isExist) {
-    await cloudinary.uploader.destroy(image.filename);
-    throw new CustomError.BadRequestError('Category is exist');
-  }
   const category = await Category.create({
     name,
     slug: slugify(name),
     description,
-    image: image?.path,
   });
 
   res.status(StatusCodes.CREATED).json({ category });
@@ -48,20 +41,10 @@ const getCategory = async (req: Request, res: Response) => {
 const updateCategory = async (req: Request, res: Response) => {
   const { id: categoryId } = req.params;
   const { name, description } = req.body;
-  const image = req.file;
 
   const category = await Category.findById(categoryId);
   if (!category) {
     throw new CustomError.NotFoundError(`No category with id ${categoryId}`);
-  }
-
-  if (name && name !== category.name) {
-    const isExist = await Category.findOne({ slug: slugify(name) });
-
-    if (isExist) {
-      cloudinary.uploader.destroy(image.filename);
-      throw new CustomError.BadRequestError('Category name already exists');
-    }
   }
 
   if (name) {
@@ -71,19 +54,6 @@ const updateCategory = async (req: Request, res: Response) => {
 
   if (description) {
     category.description = description;
-  }
-
-  if (image) {
-    if (category.image) {
-      const pre_public_id = category.image
-        .split('/')
-        .slice(-2)
-        .join('/')
-        .split('.')[0];
-      await cloudinary.uploader.destroy(pre_public_id);
-    }
-
-    category.image = image.path;
   }
 
   await category.save();
@@ -101,16 +71,35 @@ const deleteCategory = async (req: Request, res: Response) => {
   }
 
   await category.deleteOne();
-  if (category.image) {
-    const pre_public_id = category.image
-      .split('/')
-      .slice(-2)
-      .join('/')
-      .split('.')[0];
-    await cloudinary.uploader.destroy(pre_public_id);
+  if (category.images) {
+    remove(category.images);
   }
 
   res.status(StatusCodes.OK).json({ msg: 'Success! Category removed.' });
+};
+
+const uploadImages = async (req: Request, res: Response) => {
+  if (!req.files) {
+    throw new CustomError.BadRequestError('No files uploaded');
+  }
+
+  const { id: categoryId } = req.params;
+  const images = req.files as Express.Multer.File[];
+  const imageUrls = upload(images);
+
+  const category = await Category.findOne({ _id: categoryId });
+  if (!category) {
+    remove(imageUrls);
+    throw new CustomError.NotFoundError(`No cateogry with id ${categoryId}`);
+  }
+  if (category.images.length !== 0) {
+    remove(category.images);
+  }
+
+  category.images = imageUrls;
+  await category.save();
+
+  res.status(StatusCodes.CREATED).json({ category });
 };
 
 export {
@@ -119,4 +108,5 @@ export {
   getCategory,
   updateCategory,
   deleteCategory,
+  uploadImages,
 };

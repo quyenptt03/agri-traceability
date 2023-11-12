@@ -31,7 +31,7 @@ const pestSchema = new Schema<IPest>(
           filename: String,
         },
       ],
-      required: [true, 'Please provide farm product images'],
+      required: [true, 'Please provide pest images'],
     },
   },
   { timestamps: true }

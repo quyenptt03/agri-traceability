@@ -4,7 +4,7 @@ interface ICategory {
   name: string;
   slug: string;
   description: string;
-  image: string;
+  images: object[];
 }
 
 const categorySchema = new Schema<ICategory>(
@@ -26,8 +26,13 @@ const categorySchema = new Schema<ICategory>(
       type: String,
       required: [true, 'Please provide category description'],
     },
-    image: {
-      type: String,
+    images: {
+      type: [
+        {
+          path: String,
+          filename: String,
+        },
+      ],
       required: [true, 'Please provide category image'],
     },
   },
