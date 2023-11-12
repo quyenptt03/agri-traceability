@@ -4,11 +4,7 @@ import { Category, FarmProduct, FarmingArea } from '../models';
 import { v2 as cloudinary } from 'cloudinary';
 import CustomError from '../errors';
 import generateQR from '../utils/generateQR';
-
-const deleteImages = async (imageUrls: object[]) => {
-  const publicIds = imageUrls.map((imgUrl: any) => imgUrl.filename);
-  await cloudinary.api.delete_resources(publicIds);
-};
+import { remove, upload } from './cloudinary';
 
 const getAllFarmProduct = async (req: Request, res: Response) => {
   const farmProducts = await FarmProduct.find({});
@@ -25,13 +21,8 @@ const createFarmProduct = async (req: Request, res: Response) => {
     categoryId,
     farmingAreaId,
   } = req.body;
-  const images = req.files as Express.Multer.File[];
-  const imageUrls = images.map((image) => {
-    return { path: image.path, filename: image.filename };
-  });
 
   if (!categoryId || !farmingAreaId) {
-    await deleteImages(imageUrls);
     throw new CustomError.BadRequestError(
       'Please provide category and farming area'
     );
@@ -39,17 +30,14 @@ const createFarmProduct = async (req: Request, res: Response) => {
 
   const category = await Category.findOne({ _id: categoryId });
   if (!category) {
-    await deleteImages(imageUrls);
     throw new CustomError.BadRequestError('Category does not exists.');
   }
   const farmingArea = await FarmingArea.findOne({ _id: farmingAreaId });
   if (!farmingArea) {
-    await deleteImages(imageUrls);
     throw new CustomError.BadRequestError('Farming area does not exists.');
   }
 
   if (!name || !description || !type) {
-    await deleteImages(imageUrls);
     throw new CustomError.BadRequestError(
       'Please provide name, description, type of farm product'
     );
@@ -63,7 +51,6 @@ const createFarmProduct = async (req: Request, res: Response) => {
     type,
     category: category._id,
     farming_area: farmingArea._id,
-    images: imageUrls,
   });
 
   const qrcode = await generateQR(category._id.valueOf().toString());
@@ -98,10 +85,7 @@ const updateFarmProduct = async (req: Request, res: Response) => {
     categoryId,
     farmingAreaId,
   } = req.body;
-  const images = req.files as Express.Multer.File[];
-  let imageUrls;
   let category, farmingArea;
-  console.log(images);
   const farmProduct = await FarmProduct.findOne({ _id: farmProductId });
   if (!farmProduct) {
     throw new CustomError.NotFoundError(
@@ -141,18 +125,6 @@ const updateFarmProduct = async (req: Request, res: Response) => {
 
     farmProduct.farming_area = farmingArea._id;
   }
-
-  if (images.length !== 0) {
-    imageUrls = images.map((image) => {
-      return { path: image.path, filename: image.filename };
-    });
-    if (farmProduct.images.length !== 0) {
-      deleteImages(farmProduct.images);
-    }
-
-    farmProduct.images = imageUrls;
-  }
-
   await farmProduct.save();
 
   res.status(StatusCodes.OK).json({ farmProduct });
@@ -168,11 +140,36 @@ const deleteFarmProduct = async (req: Request, res: Response) => {
     );
   }
 
-  await FarmProduct.deleteOne();
+  await farmProduct.deleteOne();
   if (farmProduct.images) {
-    deleteImages(farmProduct.images);
+    remove(farmProduct.images);
   }
   res.status(StatusCodes.OK).json({ msg: 'Success! Farm product remove' });
+};
+
+const uploadImages = async (req: Request, res: Response) => {
+  if (!req.files) {
+    throw new CustomError.BadRequestError('No files uploaded');
+  }
+  const { id: farmProductId } = req.params;
+  const images = req.files as Express.Multer.File[];
+  const imageUrls = await upload(images);
+
+  const farmProduct = await FarmProduct.findOne({ _id: farmProductId });
+  if (!farmProduct) {
+    remove(imageUrls);
+    throw new CustomError.NotFoundError(
+      `No farm product with id ${farmProductId}`
+    );
+  }
+  if (farmProduct.images.length !== 0) {
+    remove(farmProduct.images);
+  }
+
+  farmProduct.images = imageUrls;
+  farmProduct.save();
+
+  res.status(StatusCodes.CREATED).json({ farmProduct });
 };
 
 export {
@@ -181,4 +178,5 @@ export {
   getFarmProduct,
   updateFarmProduct,
   deleteFarmProduct,
+  uploadImages,
 };
