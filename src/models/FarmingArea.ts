@@ -6,7 +6,7 @@ interface IFarmingArea {
   area: number;
   address: string;
   coordinates: [number, number];
-  images: { path: string; filename: string }[];
+  images: object[];
 }
 
 const farmingAreaSchema = new Schema<IFarmingArea>(

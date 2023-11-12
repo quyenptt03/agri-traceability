@@ -3,6 +3,7 @@ import { FarmingArea } from '../models';
 import { StatusCodes } from 'http-status-codes';
 import { v2 as cloudinary } from 'cloudinary';
 import CustomError from '../errors';
+import { remove, upload } from './cloudinary';
 
 const getAllFarmingArea = async (req: Request, res: Response) => {
   const farmingAreas = await FarmingArea.find({});
@@ -12,14 +13,7 @@ const getAllFarmingArea = async (req: Request, res: Response) => {
 
 const createFarmingArea = async (req: Request, res: Response) => {
   const { name, description, area, address, coordinates } = req.body;
-  const images = req.files as Express.Multer.File[];
-  const imageUrls = images.map((image) => {
-    return { path: image.path, filename: image.filename };
-  });
-
   if (!name || !address) {
-    const publicIds = imageUrls.map((imgUrl) => imgUrl.filename);
-    await cloudinary.api.delete_resources(publicIds);
     throw new CustomError.BadRequestError(
       'Please provide name and address of farming area'
     );
@@ -31,7 +25,6 @@ const createFarmingArea = async (req: Request, res: Response) => {
     area,
     address,
     coordinates,
-    images: imageUrls,
   });
 
   res.status(StatusCodes.CREATED).json({ farmingArea });
@@ -53,44 +46,21 @@ const getFarmingArea = async (req: Request, res: Response) => {
 const updateFarmingArea = async (req: Request, res: Response) => {
   const { name, description, area, address, coordinates } = req.body;
   const { id: farmingAreaId } = req.params;
-  const fileImages = req.files as Express.Multer.File[];
 
-  const farmingArea = await FarmingArea.findOne({ _id: farmingAreaId });
+  const farmingArea = await FarmingArea.findOneAndUpdate(
+    { _id: farmingAreaId },
+    req.body,
+    {
+      new: true,
+      runValidators: true,
+    }
+  );
 
   if (!farmingArea) {
     throw new CustomError.NotFoundError(
       `No farming area with id ${farmingAreaId}`
     );
   }
-
-  if (name) {
-    farmingArea.name = name;
-  }
-  if (description) {
-    farmingArea.description = description;
-  }
-  if (area) {
-    farmingArea.area = area;
-  }
-  if (address) {
-    farmingArea.address = address;
-  }
-  if (coordinates) {
-    farmingArea.coordinates = coordinates;
-  }
-  if (fileImages.length !== 0) {
-    if (farmingArea.images.length !== 0) {
-      const publicIds = farmingArea.images.map((img: any) => img.filename);
-      await cloudinary.api.delete_resources(publicIds);
-    }
-
-    const imageUrls = fileImages.map((image) => {
-      return { path: image.path, filename: image.filename };
-    });
-    farmingArea.images = imageUrls;
-  }
-
-  await farmingArea.save();
 
   res.status(StatusCodes.OK).json({ farmingArea });
 };
@@ -105,10 +75,34 @@ const deleteFarmingArea = async (req: Request, res: Response) => {
   }
   await farmingArea.deleteOne();
   if (farmingArea.images) {
-    const publicIds = farmingArea.images.map((img: any) => img.filename);
-    await cloudinary.api.delete_resources(publicIds);
+    remove(farmingArea.images);
   }
   res.status(StatusCodes.OK).json({ msg: 'Success! Farming area removed' });
+};
+
+const uploadImages = async (req: Request, res: Response) => {
+  if (!req.files) {
+    throw new CustomError.BadRequestError('No file uploaded');
+  }
+  const { id: farmingAreaId } = req.params;
+  const images = req.files as Express.Multer.File[];
+  const imageUrls = upload(images);
+
+  const farmingArea = await FarmingArea.findOne({ _id: farmingAreaId });
+  if (!farmingArea) {
+    remove(farmingArea.images);
+    throw new CustomError.NotFoundError(
+      `No farming area with id ${farmingAreaId}`
+    );
+  }
+  if (farmingArea.images.length !== 0) {
+    remove(farmingArea.images);
+  }
+
+  farmingArea.images = imageUrls;
+  farmingArea.save();
+
+  res.status(StatusCodes.CREATED).json({ farmingArea });
 };
 
 export {
@@ -117,4 +111,5 @@ export {
   getFarmingArea,
   updateFarmingArea,
   deleteFarmingArea,
+  uploadImages,
 };

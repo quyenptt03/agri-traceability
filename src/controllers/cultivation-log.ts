@@ -15,7 +15,9 @@ const getAllCultivationLogs = async (req: Request, res: Response) => {
     select: '_id name desctiption amount unit',
   });
 
-  res.status(StatusCodes.OK).json({ cultivationLogs });
+  res
+    .status(StatusCodes.OK)
+    .json({ cultivationLogs, count: cultivationLogs.length });
 };
 
 const createCultivationLog = async (req: Request, res: Response) => {

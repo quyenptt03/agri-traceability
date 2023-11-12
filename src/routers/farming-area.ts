@@ -5,20 +5,19 @@ import {
   getAllFarmingArea,
   updateFarmingArea,
   getFarmingArea,
+  uploadImages,
 } from '../controllers/farming-area';
 import uploadCloud from '../middlewares/uploadCloud';
 
 const router = express.Router();
-
+router.route('/').get(getAllFarmingArea).post(createFarmingArea);
 router
-  .route('/')
-  .get(getAllFarmingArea)
-  .post(uploadCloud.array('images', 10), createFarmingArea);
-
+  .route('/upload/:id')
+  .patch(uploadCloud.array('images', 10), uploadImages);
 router
   .route('/:id')
   .get(getFarmingArea)
-  .patch(uploadCloud.array('images', 10), updateFarmingArea)
+  .patch(updateFarmingArea)
   .delete(deleteFarmingArea);
 
 export default router;

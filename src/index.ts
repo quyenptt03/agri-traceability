@@ -12,6 +12,7 @@ import {
   farmingAreaRouter,
   farmProductRouter,
   pestCategoryRouter,
+  pestRouter,
   qrCodeRouter,
 } from './routers';
 
@@ -38,6 +39,7 @@ app.use('/api/v1/farm-products', farmProductRouter);
 app.use('/api/v1/cultivation-logs', cultivationLogRouter);
 app.use('/api/v1/activities', activityRouter);
 app.use('/api/v1/pest-categories', pestCategoryRouter);
+app.use('/api/v1/pests', pestRouter);
 app.use('/api/v1/qrcode', qrCodeRouter);
 
 app.use(errorHandlerMiddleware);
