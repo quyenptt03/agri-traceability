@@ -13,6 +13,7 @@ import {
   farmProductRouter,
   pestCategoryRouter,
   pestRouter,
+  medicineRouter,
   qrCodeRouter,
 } from './routers';
 
@@ -40,6 +41,7 @@ app.use('/api/v1/cultivation-logs', cultivationLogRouter);
 app.use('/api/v1/activities', activityRouter);
 app.use('/api/v1/pest-categories', pestCategoryRouter);
 app.use('/api/v1/pests', pestRouter);
+app.use('/api/v1/medicines', medicineRouter);
 app.use('/api/v1/qrcode', qrCodeRouter);
 
 app.use(errorHandlerMiddleware);

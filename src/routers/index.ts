@@ -5,6 +5,7 @@ import cultivationLogRouter from './cultivation-log';
 import activityRouter from './activity';
 import pestCategoryRouter from './pest-category';
 import pestRouter from './pest';
+import medicineRouter from './medicine';
 import qrCodeRouter from './qrcode';
 
 export {
@@ -15,5 +16,6 @@ export {
   activityRouter,
   pestCategoryRouter,
   pestRouter,
+  medicineRouter,
   qrCodeRouter,
 };
