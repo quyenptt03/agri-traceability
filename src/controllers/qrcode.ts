@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { CultivationLog, FarmProduct } from '../models';
+import { CultivationLog, FarmProduct, FarmingArea } from '../models';
 import { StatusCodes } from 'http-status-codes';
 import CustomError from '../errors';
 
@@ -18,7 +18,11 @@ const scanQrcode = async (req: Request, res: Response) => {
     select: '_id name desctiption amount unit',
   });
 
-  res.status(StatusCodes.OK).json({ farmProduct, cultivationLogs });
+  const farmingArea = await FarmingArea.find({ _id: farmProduct.farming_area });
+
+  res
+    .status(StatusCodes.OK)
+    .json({ farmProduct, cultivationLogs, farmingArea });
 };
 
 export { scanQrcode };
