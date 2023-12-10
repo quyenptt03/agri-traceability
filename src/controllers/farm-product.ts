@@ -53,7 +53,7 @@ const createFarmProduct = async (req: Request, res: Response) => {
     farming_area: farmingArea._id,
   });
 
-  const qrcode = await generateQR(category._id.valueOf().toString());
+  const qrcode = await generateQR(farmProduct._id.valueOf().toString());
   farmProduct.qrcode = qrcode;
   await farmProduct.save();
   res.status(StatusCodes.CREATED).json({
