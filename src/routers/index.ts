@@ -1,5 +1,4 @@
 import authRouter from './auth';
-import userRouter from './user';
 import categoryRouter from './category';
 import farmingAreaRouter from './farming-area';
 import farmProductRouter from './farm-product';
