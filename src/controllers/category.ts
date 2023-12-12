@@ -1,7 +1,6 @@
 import { Request, Response } from 'express';
 import { Category } from '../models';
 import { StatusCodes } from 'http-status-codes';
-import { v2 as cloudinary } from 'cloudinary';
 import slugify from 'slugify';
 import CustomError from '../errors';
 import { remove, upload } from './cloudinary';

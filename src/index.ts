@@ -2,10 +2,20 @@ import { config } from 'dotenv';
 import 'express-async-errors';
 //express
 import express from 'express';
+// others pakages
+// import swaggerDocumentation from './helper/documentation';
+// import swaggerDoc from 'swagger-ui-express';
+import swaggerDocs from '../swagger';
+import cors from 'cors';
+import morgan from 'morgan';
+import bodyParser from 'body-parser';
+import cookieParser from 'cookie-parser';
+
 //database
 import connectDB from './db/connect';
 //routes
 import {
+  authRouter,
   activityRouter,
   categoryRouter,
   cultivationLogRouter,
@@ -15,18 +25,11 @@ import {
   pestRouter,
   medicineRouter,
   qrCodeRouter,
+  userRouter,
 } from './routers';
-import swaggerDocs from '../swagger';
-// import swaggerDoc from 'swagger-ui-express';
 
 //middlewares
-import bodyParser from 'body-parser';
 import errorHandlerMiddleware from './middlewares/error-handler';
-
-// others
-// import swaggerDocumentation from './helper/documentation';
-import cors from 'cors';
-import morgan from 'morgan';
 
 //config dotenv
 config();
@@ -37,6 +40,7 @@ const port = process.env.PORT || 5000;
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(morgan('tiny'));
+app.use(cookieParser(process.env.JWT_SECRET));
 app.use(cors());
 
 app.get('/', (req, res) => {
@@ -45,7 +49,8 @@ app.get('/', (req, res) => {
 
 // app.use('/docs', swaggerDoc.serve);
 // app.use('/docs', swaggerDoc.setup(swaggerDocumentation));
-
+app.use('/api/v1/auth', authRouter);
+app.use('/api/v1/users', userRouter);
 app.use('/api/v1/categories', categoryRouter);
 app.use('/api/v1/farming-areas', farmingAreaRouter);
 app.use('/api/v1/farm-products', farmProductRouter);

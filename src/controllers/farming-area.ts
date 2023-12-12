@@ -1,7 +1,6 @@
 import { Request, Response } from 'express';
 import { FarmingArea } from '../models';
 import { StatusCodes } from 'http-status-codes';
-import { v2 as cloudinary } from 'cloudinary';
 import CustomError from '../errors';
 import { remove, upload } from './cloudinary';
 
@@ -44,7 +43,6 @@ const getFarmingArea = async (req: Request, res: Response) => {
 };
 
 const updateFarmingArea = async (req: Request, res: Response) => {
-  const { name, description, area, address, coordinates } = req.body;
   const { id: farmingAreaId } = req.params;
 
   const farmingArea = await FarmingArea.findOneAndUpdate(

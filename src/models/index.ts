@@ -1,3 +1,4 @@
+import User from './User';
 import Category from './Category';
 import Activity from './Activity';
 import CultivationLog from './CultivationLog';
@@ -10,6 +11,7 @@ import PestCategory from './PestCategory';
 import Treatment from './Treatment';
 
 export {
+  User,
   Category,
   Activity,
   CultivationLog,
