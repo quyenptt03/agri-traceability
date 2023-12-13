@@ -1,6 +1,6 @@
 import express from 'express';
 import {
-  createManager,
+  createUser,
   getAllUsers,
   getSingleUser,
   showCurrentUser,
@@ -18,7 +18,7 @@ const router = express.Router();
 router
   .route('/')
   .get(authenticateUser, authorizePermissions('admin'), getAllUsers)
-  .post(authenticateUser, authorizePermissions('admin'), createManager);
+  .post(authenticateUser, authorizePermissions('admin'), createUser);
 router.route('/my-profile').get(authenticateUser, showCurrentUser);
 router.route('/update-user').patch(authenticateUser, updateUser);
 router.route('/change-password').patch(authenticateUser, changePassword);

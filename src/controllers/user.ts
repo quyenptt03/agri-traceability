@@ -8,22 +8,22 @@ import {
   createUserToken,
 } from '../utils';
 
-const createManager = async (req: Request, res: Response) => {
-  const { email, first_name, last_name, password } = req.body;
+const createUser = async (req: Request, res: Response) => {
+  const { email, first_name, last_name, password, role } = req.body;
   const emailAlreadyExist = await User.findOne({ email });
 
   if (emailAlreadyExist) {
     throw new CustomError.BadRequestError('Email already exists');
   }
 
-  const manager = await User.create({
+  const user = await User.create({
     first_name,
     last_name,
     email,
     password,
-    role: 'manager',
+    role,
   });
-  res.status(StatusCodes.CREATED).json({ manager });
+  res.status(StatusCodes.CREATED).json({ user });
 };
 
 const getAllUsers = async (req: Request, res: Response) => {
@@ -89,7 +89,7 @@ const changeUserRole = async (req: Request, res: Response) => {
 };
 
 export {
-  createManager,
+  createUser,
   getAllUsers,
   getSingleUser,
   showCurrentUser,
