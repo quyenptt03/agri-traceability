@@ -24,7 +24,7 @@ const register = async (req: Request, res: Response) => {
   });
   const userToken = createUserToken(user);
   attachCookiesToResponse({ res, user: userToken });
-  res.status(StatusCodes.CREATED).json({ user });
+  res.status(StatusCodes.CREATED).json({ user: userToken });
 };
 
 const login = async (req: Request, res: Response) => {
@@ -40,7 +40,7 @@ const login = async (req: Request, res: Response) => {
 
   const isCorrectPassword = await user.comparePassword(password);
   if (!isCorrectPassword) {
-    throw new CustomError.UnauthenticatedError('Invalid credentials');
+    throw new CustomError.UnauthenticatedError('Incorrect email or password');
   }
 
   const userToken = createUserToken(user);
