@@ -7,6 +7,7 @@ import {
   updateUser,
   changePassword,
   changeUserRole,
+  deleteUser,
 } from '../controllers/user';
 import {
   authenticateUser,
@@ -25,6 +26,7 @@ router.route('/change-password').patch(authenticateUser, changePassword);
 router
   .route('/:id')
   .get(authenticateUser, getSingleUser)
-  .patch(authenticateUser, authorizePermissions('admin'), changeUserRole);
+  .patch(authenticateUser, authorizePermissions('admin'), changeUserRole)
+  .delete(authenticateUser, authorizePermissions('admin'), deleteUser);
 
 export default router;

@@ -88,6 +88,16 @@ const changeUserRole = async (req: Request, res: Response) => {
   res.status(StatusCodes.OK).json({ msg: 'Sucess! Role updated' });
 };
 
+const deleteUser = async (req: Request, res: Response) => {
+  const { id: userId } = req.params;
+  const user = await User.findOne({ _id: userId });
+  if (!user) {
+    throw new CustomError.NotFoundError(`No user with id: ${userId} `);
+  }
+  await user.deleteOne();
+  res.status(StatusCodes.OK).json({ msg: 'Success! User removed' });
+};
+
 export {
   createUser,
   getAllUsers,
@@ -96,4 +106,5 @@ export {
   updateUser,
   changePassword,
   changeUserRole,
+  deleteUser,
 };

@@ -42,7 +42,6 @@ const authenticateUser = async (
 };
 
 const authorizePermissions = (...roles: string[]) => {
-  console.log({ roles });
   return (req: Request, res: Response, next: NextFunction) => {
     // @ts-ignore
     if (!roles.includes(req.user.role)) {
