@@ -7,18 +7,29 @@ import {
   deleteMedicine,
   uploadImages,
 } from '../controllers/medicine';
+import {
+  authenticateUser,
+  authorizePermissions,
+} from '../middlewares/authentication';
 import uploadCloud from '../middlewares/uploadCloud';
 
 const router = express.Router();
 
-router.route('/').get(getAllMedicine).post(createMedicine);
+router
+  .route('/')
+  .get(authenticateUser, getAllMedicine)
+  .post([authenticateUser, authorizePermissions('admin')], createMedicine);
 router
   .route('/upload/:id')
-  .patch(uploadCloud.array('images', 10), uploadImages);
+  .patch(
+    [authenticateUser, authorizePermissions('admin')],
+    uploadCloud.array('images', 10),
+    uploadImages
+  );
 router
   .route('/:id')
-  .get(getMedicine)
-  .patch(updateMedicine)
-  .delete(deleteMedicine);
+  .get(authenticateUser, getMedicine)
+  .patch([authenticateUser, authorizePermissions('admin')], updateMedicine)
+  .delete([authenticateUser, authorizePermissions('admin')], deleteMedicine);
 
 export default router;
