@@ -7,18 +7,28 @@ import {
   deleteFarmProduct,
   uploadImages,
 } from '../controllers/farm-product';
+import {
+  authenticateUser,
+  authorizePermissions,
+} from '../middlewares/authentication';
 import uploadCloud from '../middlewares/uploadCloud';
 
 const router = express.Router();
 
-router.route('/').get(getAllFarmProduct).post(createFarmProduct);
+router
+  .route('/')
+  .get(
+    [authenticateUser, authorizePermissions('admin', 'manager')],
+    getAllFarmProduct
+  )
+  .post(authenticateUser, createFarmProduct);
 router
   .route('/upload/:id')
-  .patch(uploadCloud.array('images', 10), uploadImages);
+  .patch(authenticateUser, uploadCloud.array('images', 10), uploadImages);
 router
   .route('/:id')
   .get(getFarmProduct)
-  .patch(updateFarmProduct)
-  .delete(deleteFarmProduct);
+  .patch(authenticateUser, updateFarmProduct)
+  .delete(authenticateUser, deleteFarmProduct);
 
 export default router;

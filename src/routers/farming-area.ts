@@ -7,17 +7,37 @@ import {
   getFarmingArea,
   uploadImages,
 } from '../controllers/farming-area';
+import {
+  authenticateUser,
+  authorizePermissions,
+} from '../middlewares/authentication';
 import uploadCloud from '../middlewares/uploadCloud';
 
 const router = express.Router();
-router.route('/').get(getAllFarmingArea).post(createFarmingArea);
+router
+  .route('/')
+  .get(getAllFarmingArea)
+  .post(
+    [authenticateUser, authorizePermissions('admin', 'manager')],
+    createFarmingArea
+  );
 router
   .route('/upload/:id')
-  .patch(uploadCloud.array('images', 10), uploadImages);
+  .patch(
+    [authenticateUser, authorizePermissions('admin', 'manager')],
+    uploadCloud.array('images', 10),
+    uploadImages
+  );
 router
   .route('/:id')
   .get(getFarmingArea)
-  .patch(updateFarmingArea)
-  .delete(deleteFarmingArea);
+  .patch(
+    [authenticateUser, authorizePermissions('admin', 'manager')],
+    updateFarmingArea
+  )
+  .delete(
+    [authenticateUser, authorizePermissions('admin', 'manager')],
+    deleteFarmingArea
+  );
 
 export default router;

@@ -6,15 +6,19 @@ import {
   updateActivity,
 } from '../controllers/activity';
 import express from 'express';
+import {
+  authenticateUser,
+  authorizePermissions,
+} from '../middlewares/authentication';
 
 const router = express.Router();
 
-router.route('/').get(getAllActivities).post(createActivity);
+router.route('/').get(getAllActivities).post(authenticateUser, createActivity);
 
 router
   .route('/:id')
   .get(getActivity)
-  .patch(updateActivity)
-  .delete(deleteActivity);
+  .patch(authenticateUser, updateActivity)
+  .delete(authenticateUser, deleteActivity);
 
 export default router;
