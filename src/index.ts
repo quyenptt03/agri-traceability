@@ -62,6 +62,7 @@ app.use('/api/v1/pest-categories', pestCategoryRouter);
 app.use('/api/v1/pests', pestRouter);
 app.use('/api/v1/diseases', diseaseRouter);
 app.use('/api/v1/medicines', medicineRouter);
+app.use('/api/v1/treatments', treatmentRouter);
 app.use('/api/v1/qrcode', qrCodeRouter);
 
 app.use(errorHandlerMiddleware);

@@ -1,20 +1,19 @@
 import express from 'express';
 import {
-  getAllPests,
-  createPest,
-  getPest,
-  updatePest,
-  deletePest,
-  uploadImages,
-} from '../controllers/pest';
-import uploadCloud from '../middlewares/uploadCloud';
+  getAllTreatment,
+  getTreatment,
+  createTreatment,
+  updateTreatment,
+  deleteTreatment,
+} from '../controllers/treatment';
 
 const router = express.Router();
 
-router.route('/').get(getAllPests).post(createPest);
+router.route('/').get(getAllTreatment).post(createTreatment);
 router
-  .route('/upload/:id')
-  .patch(uploadCloud.array('images', 10), uploadImages);
-router.route('/:id').get(getPest).patch(updatePest).delete(deletePest);
+  .route('/:id')
+  .get(getTreatment)
+  .patch(updateTreatment)
+  .delete(deleteTreatment);
 
 export default router;

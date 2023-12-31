@@ -7,7 +7,9 @@ import cultivationLogRouter from './cultivation-log';
 import activityRouter from './activity';
 import pestCategoryRouter from './pest-category';
 import pestRouter from './pest';
+import diseaseRouter from './disease';
 import medicineRouter from './medicine';
+import treatmentRouter from './treatment';
 import qrCodeRouter from './qrcode';
 
 export {
@@ -20,6 +22,8 @@ export {
   activityRouter,
   pestCategoryRouter,
   pestRouter,
+  diseaseRouter,
   medicineRouter,
+  treatmentRouter,
   qrCodeRouter,
 };
