@@ -21,6 +21,8 @@ const createFarmProduct = async (req: Request, res: Response) => {
     categoryId,
     farmingAreaId,
   } = req.body;
+  // @ts-ignore
+  const user = req.user.userId;
 
   if (!categoryId || !farmingAreaId) {
     throw new CustomError.BadRequestError(
@@ -51,6 +53,7 @@ const createFarmProduct = async (req: Request, res: Response) => {
     type,
     category: category._id,
     farming_area: farmingArea._id,
+    user,
   });
 
   const qrcode = await generateQR(farmProduct._id.valueOf().toString());
