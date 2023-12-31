@@ -14,7 +14,7 @@ const router = express.Router();
 
 router
   .route('/')
-  .get(authenticateUser, getAllFarmProduct)
+  .get(getAllFarmProduct)
   .post(authenticateUser, createFarmProduct);
 router
   .route('/upload/:id')
