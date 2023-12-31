@@ -67,7 +67,6 @@ const farmProductSchema = new Schema<IFarmProduct>(
     user: {
       type: Schema.Types.ObjectId,
       ref: 'User',
-      required: true,
     },
   },
 
