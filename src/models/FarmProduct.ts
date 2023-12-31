@@ -12,6 +12,7 @@ interface IFarmProduct {
   images: object[];
   farming_area: Types.ObjectId;
   qrcode: string;
+  user: Types.ObjectId;
 }
 
 const farmProductSchema = new Schema<IFarmProduct>(
@@ -63,7 +64,13 @@ const farmProductSchema = new Schema<IFarmProduct>(
     qrcode: {
       type: String,
     },
+    user: {
+      type: Schema.Types.ObjectId,
+      ref: 'User',
+      required: true,
+    },
   },
+
   { timestamps: true }
 );
 

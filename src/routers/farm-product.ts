@@ -7,20 +7,14 @@ import {
   deleteFarmProduct,
   uploadImages,
 } from '../controllers/farm-product';
-import {
-  authenticateUser,
-  authorizePermissions,
-} from '../middlewares/authentication';
+import { authenticateUser } from '../middlewares/authentication';
 import uploadCloud from '../middlewares/uploadCloud';
 
 const router = express.Router();
 
 router
   .route('/')
-  .get(
-    [authenticateUser, authorizePermissions('admin', 'manager')],
-    getAllFarmProduct
-  )
+  .get(authenticateUser, getAllFarmProduct)
   .post(authenticateUser, createFarmProduct);
 router
   .route('/upload/:id')
