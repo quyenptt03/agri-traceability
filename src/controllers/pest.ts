@@ -5,7 +5,10 @@ import { Pest, PestCategory } from '../models';
 import { remove, upload } from './cloudinary';
 
 const getAllPests = async (req: Request, res: Response) => {
-  const pests = await Pest.find({});
+  const pests = await Pest.find({}).populate({
+    path: 'category',
+    select: '_id name description',
+  });
   res.status(StatusCodes.OK).json({ pests, count: pests.length });
 };
 

@@ -6,10 +6,15 @@ import { v2 as cloudinary } from 'cloudinary';
 import { remove, upload } from './cloudinary';
 
 const getAllCultivationLogs = async (req: Request, res: Response) => {
-  const cultivationLogs = await CultivationLog.find({}).populate({
-    path: 'activity',
-    select: '_id name desctiption amount unit',
-  });
+  const cultivationLogs = await CultivationLog.find({})
+    .populate({
+      path: 'activity',
+      select: '_id name desctiption amount unit',
+    })
+    .populate({
+      path: 'farm_product',
+      select: '_id name description',
+    });
 
   res
     .status(StatusCodes.OK)
@@ -47,10 +52,16 @@ const getCultivationLog = async (req: Request, res: Response) => {
   const { id: cultivationLogId } = req.params;
   const cultivationLog = await CultivationLog.findOne({
     _id: cultivationLogId,
-  }).populate({
-    path: 'activity',
-    select: '_id name desctiption amount unit',
-  });
+  })
+    .populate({
+      path: 'activity',
+      select: '_id name desctiption amount unit',
+    })
+    .populate({
+      path: 'farm_product',
+      select: '_id name description',
+    });
+
   if (!cultivationLog) {
     throw new CustomError.NotFoundError(
       `No cultivation log with id ${cultivationLogId}`

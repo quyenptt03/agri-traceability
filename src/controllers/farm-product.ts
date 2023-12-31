@@ -1,13 +1,20 @@
 import { Request, Response } from 'express';
 import { StatusCodes } from 'http-status-codes';
 import { Category, FarmProduct, FarmingArea } from '../models';
-import { v2 as cloudinary } from 'cloudinary';
 import CustomError from '../errors';
 import generateQR from '../utils/generateQR';
 import { remove, upload } from './cloudinary';
 
 const getAllFarmProduct = async (req: Request, res: Response) => {
-  const farmProducts = await FarmProduct.find({});
+  const farmProducts = await FarmProduct.find({})
+    .populate({
+      path: 'category',
+      select: '_id name description',
+    })
+    .populate({
+      path: 'farming_area',
+      select: '_id name',
+    });
   res.status(StatusCodes.OK).json({ farmProducts, count: farmProducts.length });
 };
 
@@ -66,7 +73,17 @@ const createFarmProduct = async (req: Request, res: Response) => {
 
 const getFarmProduct = async (req: Request, res: Response) => {
   const { id: farmProductId } = req.params;
-  const farmProduct = await FarmProduct.findOne({ _id: farmProductId });
+  const farmProduct = await FarmProduct.findOne({
+    _id: farmProductId,
+  })
+    .populate({
+      path: 'category',
+      select: '_id name description',
+    })
+    .populate({
+      path: 'farming_area',
+      select: '_id name',
+    });
 
   if (!farmProduct) {
     throw new CustomError.NotFoundError(
