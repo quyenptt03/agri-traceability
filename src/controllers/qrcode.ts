@@ -5,7 +5,12 @@ import CustomError from '../errors';
 
 const scanQrcode = async (req: Request, res: Response) => {
   const { id: farmProductId } = req.params;
-  const farmProduct = await FarmProduct.findOne({ _id: farmProductId });
+  const farmProduct = await FarmProduct.findOne({
+    _id: farmProductId,
+  }).populate({
+    path: 'category',
+    select: '_id name description',
+  });
   if (!farmProduct) {
     throw new CustomError.NotFoundError(
       `No farm product with id ${farmProductId}`
