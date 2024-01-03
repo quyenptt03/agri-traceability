@@ -15,7 +15,7 @@ const scanQrcode = async (req: Request, res: Response) => {
     farm_product: farmProductId,
   }).populate({
     path: 'activity',
-    select: '_id name desctiption amount unit',
+    select: '_id name description amount unit',
   });
 
   const farmingArea = await FarmingArea.find({ _id: farmProduct.farming_area });
