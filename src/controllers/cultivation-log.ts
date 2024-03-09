@@ -1,118 +1,136 @@
 import { Request, Response } from 'express';
 import { StatusCodes } from 'http-status-codes';
 import CustomError from '../errors';
-import { Activity, CultivationLog, FarmProduct } from '../models';
-import { v2 as cloudinary } from 'cloudinary';
+import { CultivationLog, Herd } from '../models';
 import { remove, upload } from './cloudinary';
 
 const getAllCultivationLogs = async (req: Request, res: Response) => {
-  const cultivationLogs = await CultivationLog.find({})
-    .populate({
-      path: 'activity',
-      select: '_id name desctiption amount unit',
-    })
-    .populate({
-      path: 'farm_product',
-      select: '_id name description',
-    });
+  const cultivationLogs = await CultivationLog.find({});
+  res
+    .status(StatusCodes.OK)
+    .json({ cultivationLogs, count: cultivationLogs.length });
+};
+
+const createHerdCultivationLog = async (req: Request, res: Response) => {
+  const { herdId, name, description, notes, date } = req.body;
+
+  if (!herdId) {
+    throw new CustomError.BadRequestError('Please provide herd id');
+  }
+  const herd = await Herd.findOne({ _id: herdId });
+  if (!herd) {
+    throw new CustomError.BadRequestError('Herd does not exists');
+  }
+
+  const cultivationLog = await CultivationLog.create({
+    name,
+    description,
+    notes,
+    date,
+    herd: herdId,
+  });
+  res.status(StatusCodes.CREATED).json({ cultivationLog });
+};
+
+// const createCultivationLog = async (req: Request, res: Response) => {
+//   const { farmProductId, activityId, notes } = req.body;
+
+//   if (!farmProductId || !activityId) {
+//     throw new CustomError.BadRequestError(
+//       'Please provide farm product id, activity id'
+//     );
+//   }
+
+//   const farmProduct = await FarmProduct.findOne({ _id: farmProductId });
+//   const activity = await Activity.findOne({ _id: activityId });
+
+//   if (!farmProduct || !activity) {
+//     throw new CustomError.BadRequestError(
+//       'Farm product or activity does not exists'
+//     );
+//   }
+
+//   const cultivationLog = await CultivationLog.create({
+//     farm_product: farmProduct._id,
+//     activity: activity._id,
+//     notes,
+//   });
+
+//   res.status(StatusCodes.CREATED).json({ cultivationLog });
+// };
+
+const getCultivationLog = async (req: Request, res: Response) => {
+  const { id: cultivationLogId } = req.params;
+  const cultivationLog = await CultivationLog.findOne({
+    _id: cultivationLogId,
+  }).populate({
+    path: 'herd',
+    select: '_id name',
+  });
+
+  if (!cultivationLog) {
+    throw new CustomError.NotFoundError(
+      `No cultivation log with id ${cultivationLogId}`
+    );
+  }
+
+  res.status(StatusCodes.OK).json({ cultivationLog });
+};
+
+const getCultivationLogsByHerd = async (req: Request, res: Response) => {
+  const { id: herdId } = req.params;
+  const herd = await Herd.findOne({ _id: herdId });
+
+  if (!herd) {
+    throw new CustomError.BadRequestError(`No herd with id ${herdId}`);
+  }
+
+  const cultivationLogs = await CultivationLog.find({
+    herd: herdId,
+  }).populate({
+    path: 'herd',
+    select: '_id name',
+  });
 
   res
     .status(StatusCodes.OK)
     .json({ cultivationLogs, count: cultivationLogs.length });
 };
 
-const createCultivationLog = async (req: Request, res: Response) => {
-  const { farmProductId, activityId, notes } = req.body;
-
-  if (!farmProductId || !activityId) {
-    throw new CustomError.BadRequestError(
-      'Please provide farm product id, activity id'
-    );
-  }
-
-  const farmProduct = await FarmProduct.findOne({ _id: farmProductId });
-  const activity = await Activity.findOne({ _id: activityId });
-
-  if (!farmProduct || !activity) {
-    throw new CustomError.BadRequestError(
-      'Farm product or activity does not exist'
-    );
-  }
-
-  const cultivationLog = await CultivationLog.create({
-    farm_product: farmProduct._id,
-    activity: activity._id,
-    notes,
-  });
-
-  res.status(StatusCodes.CREATED).json({ cultivationLog });
-};
-
-const getCultivationLog = async (req: Request, res: Response) => {
+const updateHerdCultivationLog = async (req: Request, res: Response) => {
   const { id: cultivationLogId } = req.params;
+  const { herdId, name, description, notes, date } = req.body;
+
   const cultivationLog = await CultivationLog.findOne({
     _id: cultivationLogId,
-  })
-    .populate({
-      path: 'activity',
-      select: '_id name desctiption amount unit',
-    })
-    .populate({
-      path: 'farm_product',
-      select: '_id name description',
-    });
+  });
 
   if (!cultivationLog) {
     throw new CustomError.NotFoundError(
       `No cultivation log with id ${cultivationLogId}`
     );
   }
-  res.status(StatusCodes.OK).json({ cultivationLog });
-};
 
-const getCultivationLogsByFarmProduct = async (req: Request, res: Response) => {
-  const { id: farmProductId } = req.params;
-  const cultivationLogs = await CultivationLog.find({
-    farm_product: farmProductId,
-  }).populate({
-    path: 'activity',
-    select: '_id name desctiption amount unit',
-  });
-
-  res.status(StatusCodes.OK).json({ cultivationLogs });
-};
-
-const updateCultivationLog = async (req: Request, res: Response) => {
-  const { id: cultivationLogId } = req.params;
-  const { farmProductId, activityId, notes } = req.body;
-
-  const cultivationLog = await CultivationLog.findOne({
-    _id: cultivationLogId,
-  });
-  if (!cultivationLog) {
-    throw new CustomError.NotFoundError(
-      `No cultivation log with id ${cultivationLogId}`
-    );
+  if (name) {
+    cultivationLog.name = name;
+  }
+  if (description) {
+    cultivationLog.description = description;
   }
   if (notes) {
-    (await cultivationLog).notes = notes;
+    cultivationLog.notes = notes;
+  }
+  if (date) {
+    cultivationLog.date = date;
+  }
+  if (herdId) {
+    const herd = await Herd.findOne({ _id: herdId });
+    if (!herd) {
+      throw new CustomError.BadRequestError('Herd does not exists.');
+    }
+    cultivationLog.herd = herd._id;
   }
 
-  if (farmProductId) {
-    const farmProduct = await FarmProduct.findOne({ _id: farmProductId });
-    if (!farmProduct) {
-      throw new CustomError.BadRequestError(`Farm product does not exists`);
-    }
-    cultivationLog.farm_product = farmProduct._id;
-  }
-
-  if (activityId) {
-    const activity = await Activity.findOne({ _id: activityId });
-    if (!activity) {
-      throw new CustomError.BadRequestError(`Activity does not exists`);
-    }
-    cultivationLog.activity = activity._id;
-  }
   await cultivationLog.save();
   res.status(StatusCodes.OK).json({ cultivationLog });
 };
@@ -163,10 +181,10 @@ const uploadImages = async (req: Request, res: Response) => {
 
 export {
   getAllCultivationLogs,
-  createCultivationLog,
+  createHerdCultivationLog,
   getCultivationLog,
-  getCultivationLogsByFarmProduct,
-  updateCultivationLog,
+  getCultivationLogsByHerd,
+  updateHerdCultivationLog,
   deleteCultivationLog,
   uploadImages,
 };

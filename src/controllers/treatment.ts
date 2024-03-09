@@ -1,98 +1,93 @@
 import { Request, Response } from 'express';
 import { StatusCodes } from 'http-status-codes';
 import CustomError from '../errors';
-import { Disease, FarmProduct, Medicine, Pest, Treatment } from '../models';
+import { Disease, Herd, Medicine, Pest, Treatment } from '../models';
 
 const getAllTreatment = async (req: Request, res: Response) => {
   const treatments = await Treatment.find({})
     .populate({
-      path: 'farm_product',
-      select: '_id name description',
+      path: 'herd',
+      select: '_id name',
     })
     .populate({
-      path: 'medicine',
+      path: 'disease',
       select: '_id name',
     });
   res.status(StatusCodes.OK).json({ treatments, count: treatments.length });
 };
 
-const createTreatment = async (req: Request, res: Response) => {
-  const {
-    name,
-    description,
-    method,
-    farmProductId,
-    diseaseId,
-    pestId,
-    medicineId,
-  } = req.body;
+// livestock: Types.ObjectId;
+//   herd: Types.ObjectId;
+//   disease: Types.ObjectId;
+//   type: string;
+//   product: String;
+//   amount: String;
+//   mode: string;
+//   description: string;
+//   method: string;
+//   date: Date;
+//   retreat_date: Date;
+//   site: String;
+//   technician: String;
 
-  if (!farmProductId) {
-    throw new CustomError.BadRequestError('Please provide farm product ');
+const createHerdTreatment = async (req: Request, res: Response) => {
+  const { herdId, diseaseId, type } = req.body;
+  let disease;
+
+  if (!herdId) {
+    throw new CustomError.BadRequestError('Please provide herd');
   }
-  const farmProduct = await FarmProduct.findOne({
-    _id: farmProductId,
+
+  const herd = await Herd.findOne({
+    _id: herdId,
   });
-  if (!farmProduct) {
-    throw new CustomError.BadRequestError('Farm product does not exist');
-  }
 
-  if (!medicineId) {
-    throw new CustomError.BadRequestError(
-      'Please provide pesticide/veterinary medicine '
-    );
-  }
-  const medicine = await Medicine.findOne({ _id: medicineId });
-  if (!medicine) {
-    throw new CustomError.BadRequestError(
-      'Pesticide/Veterinary medicine is not exist'
-    );
-  }
-
-  if (!pestId && !diseaseId) {
-    throw new CustomError.BadRequestError('Please provide pest/disease');
-  }
-  if (pestId) {
-    const pest = await Pest.findOne({ _id: pestId });
-    if (!pest) {
-      throw new CustomError.BadRequestError('Pest does not exists');
-    }
+  if (!herd) {
+    throw new CustomError.BadRequestError('Herd does not exist');
   }
 
   if (diseaseId) {
-    const disease = await Disease.findOne({ _id: diseaseId });
+    disease = await Disease.findOne({ _id: diseaseId });
     if (!disease) {
       throw new CustomError.BadRequestError('Disease doese not exists');
     }
   }
-  const diseasePestId = pestId ? pestId : diseaseId;
 
-  if (!description || !method) {
+  if (!type) {
     throw new CustomError.BadRequestError(
-      'Please provide all the necessary information'
+      'Please provide all the type of treatment'
     );
   }
   const treatment = await Treatment.create({
-    name,
-    description,
-    method,
-    farm_product: farmProduct._id,
-    disease_pest: diseasePestId,
-    medicine: medicine._id,
+    ...req.body,
+    herd: herd._id,
+    disease: diseaseId,
   });
 
   res.status(StatusCodes.CREATED).json({ treatment });
+};
+
+const getTreatmentByHerd = async (req: Request, res: Response) => {
+  const { id: herdId } = req.params;
+  const herd = await Herd.findOne({ _id: herdId });
+
+  if (!herd) {
+    throw new CustomError.BadRequestError(`No herd with id ${herdId}`);
+  }
+
+  const treatments = await Treatment.find({ herd: herd._id });
+  res.status(StatusCodes.OK).json({ treatments, count: treatments.length });
 };
 
 const getTreatment = async (req: Request, res: Response) => {
   const { id: treatmentId } = req.params;
   const treatment = await Treatment.findOne({ _id: treatmentId })
     .populate({
-      path: 'farm_product',
-      select: '_id name description',
+      path: 'herd',
+      select: '_id name',
     })
     .populate({
-      path: 'medicine',
+      path: 'disease',
       select: '_id name',
     });
 
@@ -102,7 +97,32 @@ const getTreatment = async (req: Request, res: Response) => {
   res.status(StatusCodes.OK).json({ treatment });
 };
 
-const updateTreatment = async (req: Request, res: Response) => {};
+const updateTreatment = async (req: Request, res: Response) => {
+  const { id: treatmentId } = req.params;
+  let disease;
+  if (req.body.diseaseId) {
+    disease = await Disease.findOne({ _id: req.body.diseaseId });
+
+    if (!disease) {
+      throw new CustomError.BadRequestError(`The disease does not exists`);
+    }
+  }
+
+  const treatment = await Treatment.findOneAndUpdate(
+    { _id: treatmentId },
+    req.body,
+    {
+      new: true,
+      runValidators: true,
+    }
+  );
+
+  if (!treatment) {
+    throw new CustomError.NotFoundError(`No treatment with id ${treatmentId}`);
+  }
+
+  res.status(StatusCodes.OK).json({ treatment });
+};
 
 const deleteTreatment = async (req: Request, res: Response) => {
   const { id: treatmentId } = req.params;
@@ -115,9 +135,10 @@ const deleteTreatment = async (req: Request, res: Response) => {
 };
 
 export {
-  createTreatment,
-  deleteTreatment,
+  createHerdTreatment,
   getAllTreatment,
+  getTreatmentByHerd,
   getTreatment,
   updateTreatment,
+  deleteTreatment,
 };

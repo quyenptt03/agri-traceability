@@ -1,28 +1,27 @@
 import express from 'express';
 import {
-  getAllFarmProduct,
-  createFarmProduct,
-  getFarmProduct,
-  updateFarmProduct,
-  deleteFarmProduct,
+  getAllHerd,
+  createHerd,
+  generateHerdMember,
+  getHerd,
+  updateHerd,
+  deleteHerd,
   uploadImages,
-} from '../controllers/farm-product';
+} from '../controllers/herd';
 import { authenticateUser } from '../middlewares/authentication';
 import uploadCloud from '../middlewares/uploadCloud';
 
 const router = express.Router();
 
-router
-  .route('/')
-  .get(getAllFarmProduct)
-  .post(authenticateUser, createFarmProduct);
+router.route('/').get(getAllHerd).post(authenticateUser, createHerd);
 router
   .route('/upload/:id')
   .patch(authenticateUser, uploadCloud.array('images', 10), uploadImages);
+router.route('/:id/generate-animals').post(generateHerdMember);
 router
   .route('/:id')
-  .get(getFarmProduct)
-  .patch(authenticateUser, updateFarmProduct)
-  .delete(authenticateUser, deleteFarmProduct);
+  .get(getHerd)
+  .patch(authenticateUser, updateHerd)
+  .delete(authenticateUser, deleteHerd);
 
 export default router;

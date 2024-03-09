@@ -1,8 +1,10 @@
 import authRouter from './auth';
 import userRouter from './user';
 import categoryRouter from './category';
-import farmingAreaRouter from './farming-area';
-import farmProductRouter from './farm-product';
+import farmRouter from './farm';
+import herdRouter from './herd';
+import animalRouter from './animal';
+import productRouter from './product';
 import cultivationLogRouter from './cultivation-log';
 import activityRouter from './activity';
 import pestCategoryRouter from './pest-category';
@@ -16,8 +18,10 @@ export {
   authRouter,
   userRouter,
   categoryRouter,
-  farmingAreaRouter,
-  farmProductRouter,
+  farmRouter,
+  herdRouter,
+  animalRouter,
+  productRouter,
   cultivationLogRouter,
   activityRouter,
   pestCategoryRouter,

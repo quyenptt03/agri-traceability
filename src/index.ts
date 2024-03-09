@@ -19,10 +19,12 @@ import {
   activityRouter,
   categoryRouter,
   cultivationLogRouter,
-  farmingAreaRouter,
-  farmProductRouter,
-  pestCategoryRouter,
-  pestRouter,
+  farmRouter,
+  herdRouter,
+  animalRouter,
+  productRouter,
+  // pestCategoryRouter,
+  // pestRouter,
   diseaseRouter,
   medicineRouter,
   treatmentRouter,
@@ -54,12 +56,14 @@ app.get('/', (req, res) => {
 app.use('/api/v1/auth', authRouter);
 app.use('/api/v1/users', userRouter);
 app.use('/api/v1/categories', categoryRouter);
-app.use('/api/v1/farming-areas', farmingAreaRouter);
-app.use('/api/v1/farm-products', farmProductRouter);
+app.use('/api/v1/farm', farmRouter);
+app.use('/api/v1/herds', herdRouter);
+app.use('/api/v1/animals', animalRouter);
+app.use('/api/v1/products', productRouter);
 app.use('/api/v1/cultivation-logs', cultivationLogRouter);
 app.use('/api/v1/activities', activityRouter);
-app.use('/api/v1/pest-categories', pestCategoryRouter);
-app.use('/api/v1/pests', pestRouter);
+// app.use('/api/v1/pest-categories', pestCategoryRouter);
+// app.use('/api/v1/pests', pestRouter);
 app.use('/api/v1/diseases', diseaseRouter);
 app.use('/api/v1/medicines', medicineRouter);
 app.use('/api/v1/treatments', treatmentRouter);

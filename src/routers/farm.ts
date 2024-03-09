@@ -1,12 +1,12 @@
 import express from 'express';
 import {
-  createFarmingArea,
-  deleteFarmingArea,
-  getAllFarmingArea,
-  updateFarmingArea,
-  getFarmingArea,
+  createFarm,
+  deleteFarm,
+  getAllFarm,
+  updateFarm,
+  getFarm,
   uploadImages,
-} from '../controllers/farming-area';
+} from '../controllers/farm';
 import {
   authenticateUser,
   authorizePermissions,
@@ -16,10 +16,10 @@ import uploadCloud from '../middlewares/uploadCloud';
 const router = express.Router();
 router
   .route('/')
-  .get(getAllFarmingArea)
+  .get(getAllFarm)
   .post(
     [authenticateUser, authorizePermissions('admin', 'manager')],
-    createFarmingArea
+    createFarm
   );
 router
   .route('/upload/:id')
@@ -30,14 +30,14 @@ router
   );
 router
   .route('/:id')
-  .get(getFarmingArea)
+  .get(getFarm)
   .patch(
     [authenticateUser, authorizePermissions('admin', 'manager')],
-    updateFarmingArea
+    updateFarm
   )
   .delete(
     [authenticateUser, authorizePermissions('admin', 'manager')],
-    deleteFarmingArea
+    deleteFarm
   );
 
 export default router;

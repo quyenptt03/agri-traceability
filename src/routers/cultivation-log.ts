@@ -1,10 +1,10 @@
 import {
   getAllCultivationLogs,
-  createCultivationLog,
+  createHerdCultivationLog,
   getCultivationLog,
-  updateCultivationLog,
+  updateHerdCultivationLog,
   deleteCultivationLog,
-  getCultivationLogsByFarmProduct,
+  getCultivationLogsByHerd,
   uploadImages,
 } from '../controllers/cultivation-log';
 import {
@@ -19,17 +19,15 @@ const router = express.Router();
 router
   .route('/')
   .get(getAllCultivationLogs)
-  .post(authenticateUser, createCultivationLog);
-router
-  .route('/farm-product/:id')
-  .get(authenticateUser, getCultivationLogsByFarmProduct);
+  .post(authenticateUser, createHerdCultivationLog);
+router.route('/herd/:id').get(authenticateUser, getCultivationLogsByHerd);
 router
   .route('/upload/:id')
   .patch(authenticateUser, uploadCloud.array('images', 10), uploadImages);
 router
   .route('/:id')
   .get(getCultivationLog)
-  .patch(authenticateUser, updateCultivationLog)
+  .patch(authenticateUser, updateHerdCultivationLog)
   .delete(authenticateUser, deleteCultivationLog);
 
 export default router;

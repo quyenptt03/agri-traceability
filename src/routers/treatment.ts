@@ -1,15 +1,17 @@
 import express from 'express';
 import {
   getAllTreatment,
+  getTreatmentByHerd,
   getTreatment,
-  createTreatment,
+  createHerdTreatment,
   updateTreatment,
   deleteTreatment,
 } from '../controllers/treatment';
 
 const router = express.Router();
 
-router.route('/').get(getAllTreatment).post(createTreatment);
+router.route('/').get(getAllTreatment).post(createHerdTreatment);
+router.route('/herd/:id').get(getTreatmentByHerd);
 router
   .route('/:id')
   .get(getTreatment)

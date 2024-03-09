@@ -1,6 +1,6 @@
 import { Schema, model } from 'mongoose';
 
-interface IFarmingArea {
+interface IFarm {
   name: string;
   description: string;
   area: number;
@@ -9,12 +9,12 @@ interface IFarmingArea {
   images: object[];
 }
 
-const farmingAreaSchema = new Schema<IFarmingArea>(
+const farmSchema = new Schema<IFarm>(
   {
     name: {
       type: String,
       trim: true,
-      required: [true, 'Please provide farming area name'],
+      required: [true, 'Please provide farm name'],
       maxLength: [100, 'Name can not be more than 100 characters'],
     },
     description: {
@@ -25,7 +25,7 @@ const farmingAreaSchema = new Schema<IFarmingArea>(
     },
     address: {
       type: String,
-      required: [true, 'Please provide farming area address'],
+      required: [true, 'Please provide farm address'],
     },
     coordinates: {
       type: [Number, Number],
@@ -37,10 +37,10 @@ const farmingAreaSchema = new Schema<IFarmingArea>(
           filename: String,
         },
       ],
-      required: [true, 'Please provide farming area images'],
+      required: [true, 'Please provide farm images'],
     },
   },
   { timestamps: true }
 );
 
-export default model<IFarmingArea>('FarmingArea', farmingAreaSchema);
+export default model<IFarm>('Farm', farmSchema);
