@@ -45,7 +45,7 @@ const deleteDisease = async (req: Request, res: Response) => {
   }
   await disease.deleteOne();
   console.log(disease.images);
-  if (disease.images) {
+  if (disease.images.length !== 0) {
     remove(disease.images);
   }
   res.status(StatusCodes.OK).json({ msg: 'Success! Disease removed' });

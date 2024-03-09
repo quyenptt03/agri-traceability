@@ -70,7 +70,7 @@ const deleteCategory = async (req: Request, res: Response) => {
   }
 
   await category.deleteOne();
-  if (category.images) {
+  if (category.images.length !== 0) {
     remove(category.images);
   }
 

@@ -64,7 +64,7 @@ const deletePest = async (req: Request, res: Response) => {
     throw new CustomError.NotFoundError(`No pest with id ${pestId}`);
   }
   await pest.deleteOne();
-  if (pest.images) {
+  if (pest.images.length !== 0) {
     remove(pest.images);
   }
   res.status(StatusCodes.OK).json({ msg: 'Success! Pest removed' });

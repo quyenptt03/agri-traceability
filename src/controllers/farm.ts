@@ -62,7 +62,7 @@ const deleteFarm = async (req: Request, res: Response) => {
     throw new CustomError.NotFoundError(`No farm with id ${farmId}`);
   }
   await farm.deleteOne();
-  if (farm.images) {
+  if (farm.images.length !== 0) {
     remove(farm.images);
   }
   res.status(StatusCodes.OK).json({ msg: 'Success! Farm removed' });

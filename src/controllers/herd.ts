@@ -181,7 +181,7 @@ const deleteHerd = async (req: Request, res: Response) => {
   await Animal.deleteMany({ herd: herd._id });
 
   await herd.deleteOne();
-  if (herd.images) {
+  if (herd.images.length !== 0) {
     remove(herd.images);
   }
   res

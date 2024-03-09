@@ -146,7 +146,7 @@ const deleteCultivationLog = async (req: Request, res: Response) => {
     );
   }
   await cultivationLog.deleteOne();
-  if (cultivationLog.images) {
+  if (cultivationLog.images.length !== 0) {
     remove(cultivationLog.images);
   }
   res.status(StatusCodes.OK).json({ msg: 'Success! Cultivation log removed.' });

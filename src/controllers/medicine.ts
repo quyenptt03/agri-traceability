@@ -73,7 +73,7 @@ const deleteMedicine = async (req: Request, res: Response) => {
     throw new CustomError.NotFoundError(`No medicine with id ${medicineId}`);
   }
   await medicine.deleteOne();
-  if (medicine.images) {
+  if (medicine.images.length !== 0) {
     remove(medicine.images);
   }
   res.status(StatusCodes.OK).json({ msg: 'Success! Medicine removed' });
