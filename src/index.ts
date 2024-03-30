@@ -30,6 +30,10 @@ import {
   treatmentRouter,
   qrCodeRouter,
   userRouter,
+  harvestRouter,
+  processorRouter,
+  productPatchRouter,
+  distributorRouter,
 } from './routers';
 
 //middlewares
@@ -67,6 +71,10 @@ app.use('/api/v1/activities', activityRouter);
 app.use('/api/v1/diseases', diseaseRouter);
 app.use('/api/v1/medicines', medicineRouter);
 app.use('/api/v1/treatments', treatmentRouter);
+app.use('/api/v1/harvests', harvestRouter);
+app.use('/api/v1/processors', processorRouter);
+app.use('/api/v1/product-patchs', productPatchRouter);
+app.use('/api/v1/distributors', distributorRouter);
 app.use('/api/v1/qrcode', qrCodeRouter);
 
 app.use(errorHandlerMiddleware);

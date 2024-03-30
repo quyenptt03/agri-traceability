@@ -1,0 +1,180 @@
+import { Request, Response } from 'express';
+import { StatusCodes } from 'http-status-codes';
+import CustomError from '../errors';
+import {
+  Harvest,
+  Herd,
+  Processor,
+  Product,
+  TraceabilityInfo,
+  ProductPatch,
+} from '../models';
+import { remove, upload } from './cloudinary';
+import generateQR from '../utils/generateQR';
+
+const getAllProductPatchs = async (req: Request, res: Response) => {
+  const productPatchs = await ProductPatch.find({});
+  res
+    .status(StatusCodes.OK)
+    .json({ productPatchs, count: productPatchs.length });
+};
+
+const createProductPatch = async (req: Request, res: Response) => {
+  const {
+    processor,
+    product,
+    quantity,
+    description,
+    production_date,
+    release_date,
+  } = req.body;
+
+  if (!processor) {
+    throw new CustomError.BadRequestError('Please provide processor');
+  }
+
+  const processorExist = await Processor.findOne({ _id: processor });
+  if (!processorExist) {
+    throw new CustomError.BadRequestError('Processor does not exists');
+  }
+
+  if (!product) {
+    throw new CustomError.BadRequestError('Please provide product');
+  }
+
+  const productExist = await Product.findOne({ _id: product });
+  if (!productExist) {
+    throw new CustomError.BadRequestError('Product does not exist');
+  }
+
+  if (!quantity || !release_date) {
+    throw new CustomError.BadRequestError(
+      'Please provide qty and release date of the product patch'
+    );
+  }
+
+  const productPatch = await ProductPatch.create(req.body);
+
+  const harvest = await Harvest.findOne({ _id: processorExist.harvest });
+  if (!harvest) {
+    throw new CustomError.BadRequestError(
+      'Harvest of processor does not exists'
+    );
+  }
+
+  const herd = await Herd.findOne({ _id: harvest.herd });
+  if (!herd) {
+    throw new CustomError.BadRequestError(
+      'The infomation of herd does not exists'
+    );
+  }
+
+  const traceabilityInfo = await TraceabilityInfo.create({
+    product,
+    herd: herd._id,
+    harvest: harvest._id,
+    processor,
+  });
+  const qrcode = await generateQR(traceabilityInfo._id.valueOf().toString());
+  productPatch.info = traceabilityInfo._id;
+  await productPatch.save();
+  productExist.qrcode = qrcode;
+  await productExist.save();
+
+  res.status(StatusCodes.CREATED).json({ productPatch });
+};
+
+const getProductPatch = async (req: Request, res: Response) => {
+  const { id: productPatchId } = req.params;
+
+  const productPatch = await ProductPatch.findOne({ _id: productPatchId })
+    .populate({
+      path: 'product',
+      select:
+        '_id name description price production_date expiration_date storage_method qrcode',
+    })
+    .populate({ path: 'processor', select: '_id name location date images' });
+  if (!productPatch) {
+    throw new CustomError.NotFoundError(
+      `No product patch with id ${productPatchId}`
+    );
+  }
+
+  res.status(StatusCodes.OK).json({ productPatch });
+};
+
+const updateProductPatch = async (req: Request, res: Response) => {
+  const { id: harvestId } = req.params;
+  let herdExist;
+
+  if (req.body.herd) {
+    herdExist = await Herd.findOne({ _id: req.body.herd });
+    if (!herdExist) {
+      throw new CustomError.BadRequestError(`No herd with id ${req.body.herd}`);
+    }
+  }
+
+  const harvest = await Harvest.findOneAndUpdate({ _id: harvestId }, req.body, {
+    runValidators: true,
+    new: true,
+  });
+
+  if (!harvest) {
+    throw new CustomError.NotFoundError(`No harvest with id ${harvestId}`);
+  }
+
+  res.status(StatusCodes.OK).json({ harvest });
+};
+
+const deleteProductPatch = async (req: Request, res: Response) => {
+  const { id: productPatchId } = req.params;
+
+  const productPatch = await ProductPatch.findOne({ _id: productPatchId });
+  if (!productPatch) {
+    throw new CustomError.NotFoundError(
+      `No productPatch with id ${productPatchId}`
+    );
+  }
+
+  productPatch.deleteOne();
+  if (productPatch.images.length !== 0) {
+    remove(productPatch.images);
+  }
+  res.status(StatusCodes.OK).json({ msg: 'Success! Product patch removed.' });
+};
+
+const uploadImages = async (req: Request, res: Response) => {
+  if (!req.files) {
+    throw new CustomError.BadRequestError('No files uploaded');
+  }
+  const { id: productPatchId } = req.params;
+  const images = req.files as Express.Multer.File[];
+  const imageUrls = await upload(images);
+
+  const productPatch = await ProductPatch.findOne({
+    _id: productPatchId,
+  });
+  if (!productPatch) {
+    remove(imageUrls);
+    throw new CustomError.NotFoundError(
+      `No productPatch with id ${productPatchId}`
+    );
+  }
+  if (productPatch.images.length !== 0) {
+    remove(productPatch.images);
+  }
+
+  productPatch.images = imageUrls;
+  productPatch.save();
+
+  res.status(StatusCodes.CREATED).json({ productPatch });
+};
+
+export {
+  getAllProductPatchs,
+  createProductPatch,
+  getProductPatch,
+  updateProductPatch,
+  deleteProductPatch,
+  uploadImages,
+};

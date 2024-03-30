@@ -1,46 +1,34 @@
 import { Request, Response } from 'express';
 import { StatusCodes } from 'http-status-codes';
 import CustomError from '../errors';
-import { Herd, Product } from '../models';
+import { Product } from '../models';
 import { remove, upload } from './cloudinary';
 
 const getAllProduct = async (req: Request, res: Response) => {
-  const products = await Product.find({}).populate({
-    path: 'herd',
-    select: '_id name',
-  });
+  const products = await Product.find({});
   res.status(StatusCodes.OK).json({ products, count: products.length });
 };
 
 const createProduct = async (req: Request, res: Response) => {
-  const { name, description, herdId, productionDate, expirationDate, notes } =
-    req.body;
+  const {
+    name,
+    description,
+    price,
+    storage_method,
+    production_date,
+    expiration_date,
+    notes,
+  } = req.body;
   // @ts-ignore
   const user = req.user.userId;
 
-  if (!herdId) {
-    throw new CustomError.BadRequestError('Please provide herd id');
-  }
-  const herd = await Herd.findOne({ _id: herdId });
-  if (!herd) {
-    throw new CustomError.BadRequestError('Herd does not exists.');
-  }
-
-  if (!name || !description || !expirationDate) {
+  if (!name || !price || !description || !expiration_date || !storage_method) {
     throw new CustomError.BadRequestError(
-      'Please provide name, description, expiration date of product'
+      'Please provide name, price, description, expiration date, storage of product'
     );
   }
 
-  const product = await Product.create({
-    name,
-    herd: herd._id,
-    description,
-    production_date: productionDate,
-    expiration_date: expirationDate,
-    notes,
-    user,
-  });
+  const product = await Product.create(req.body);
 
   res.status(StatusCodes.CREATED).json({
     product,
@@ -51,9 +39,6 @@ const getProduct = async (req: Request, res: Response) => {
   const { id: productId } = req.params;
   const product = await Product.findOne({
     _id: productId,
-  }).populate({
-    path: 'herd',
-    select: '_id name',
   });
 
   if (!product) {
@@ -65,13 +50,6 @@ const getProduct = async (req: Request, res: Response) => {
 
 const updateProduct = async (req: Request, res: Response) => {
   const { id: productId } = req.params;
-
-  if (req.body.herdId) {
-    const herdExist = await Herd.findOne({ _id: req.body.herdId });
-    if (!herdExist) {
-      throw new CustomError.BadRequestError('The herd does not exist');
-    }
-  }
 
   const product = await Product.findOneAndUpdate({ _id: productId }, req.body, {
     runValidators: true,
@@ -110,7 +88,7 @@ const uploadImages = async (req: Request, res: Response) => {
   const product = await Product.findOne({ _id: productId });
   if (!product) {
     remove(imageUrls);
-    throw new CustomError.NotFoundError(`No farm product with id ${productId}`);
+    throw new CustomError.NotFoundError(`No product with id ${productId}`);
   }
   if (product.images.length !== 0) {
     remove(product.images);

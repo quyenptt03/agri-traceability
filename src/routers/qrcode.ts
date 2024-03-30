@@ -1,8 +1,8 @@
-import { scanQrcode } from '../controllers/qrcode';
+import { getTraceabilityInfo } from '../controllers/qrcode';
 import express from 'express';
 
 const router = express.Router();
 
-router.route('/:id').get(scanQrcode);
+router.route('/:id').get(getTraceabilityInfo);
 
 export default router;

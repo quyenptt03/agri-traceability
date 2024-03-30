@@ -18,18 +18,11 @@ const getAllAnimals = async (req: Request, res: Response) => {
 };
 
 const createAnimal = async (req: Request, res: Response) => {
-  const {
-    name,
-    // type,
-    gender,
-    birth_weight,
-    birth_date,
-    is_harvested,
-    herdId,
-  } = req.body;
+  const { name, gender, birth_weight, birth_date, is_harvested, herd } =
+    req.body;
 
-  const herd = await Herd.findOne({ _id: herdId });
-  if (!herd) {
+  const herdExist = await Herd.findOne({ _id: herd });
+  if (!herdExist) {
     throw new CustomError.BadRequestError('Herd does not exists.');
   }
 
@@ -43,11 +36,8 @@ const createAnimal = async (req: Request, res: Response) => {
     birth_date,
     birth_weight,
     is_harvested,
-    herd: herd._id,
+    herd,
   });
-
-  herd.records.push(animal);
-  herd.save();
 
   res.status(StatusCodes.CREATED).json({ animal });
 };
@@ -74,11 +64,11 @@ const getAnimal = async (req: Request, res: Response) => {
 
 const updateAnimal = async (req: Request, res: Response) => {
   const { id: animalId } = req.params;
-  let herd;
+  let herdExist;
 
-  if (req.body.herdId) {
-    herd = await Herd.findOne({ _id: req.body.herdId });
-    if (!herd) {
+  if (req.body.herd) {
+    herdExist = await Herd.findOne({ _id: req.body.herd });
+    if (!herdExist) {
       throw new CustomError.BadRequestError('Herd does not exists.');
     }
   }
@@ -106,9 +96,6 @@ const deleteAnimal = async (req: Request, res: Response) => {
   if (!herd) {
     throw new CustomError.BadRequestError('Herd does not exists');
   }
-  herd.records = await herd.records.filter((id) => id.toString() !== animalId);
-
-  await herd.save();
 
   await animal.deleteOne();
   if (animal.images.length !== 0) {
@@ -133,8 +120,6 @@ const deleteHerdAnimals = async (req: Request, res: Response) => {
   }
 
   await Animal.deleteMany({ herd: herd._id });
-  herd.records = [];
-  herd.save();
 
   res.status(StatusCodes.OK).json({ msg: 'Success! Animals of herd removed' });
 };

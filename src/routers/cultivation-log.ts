@@ -4,8 +4,10 @@ import {
   getCultivationLog,
   updateHerdCultivationLog,
   deleteCultivationLog,
+  // getCultivationLogsByAnimal,
   getCultivationLogsByHerd,
   uploadImages,
+  // createCultivationLog,
 } from '../controllers/cultivation-log';
 import {
   authenticateUser,
@@ -20,10 +22,16 @@ router
   .route('/')
   .get(getAllCultivationLogs)
   .post(authenticateUser, createHerdCultivationLog);
+
+// router.route('/animal/:id').get(authenticateUser, getCultivationLogsByAnimal);
+// router.route('/herd').post(authenticateUser, createHerdCultivationLog);
+
 router.route('/herd/:id').get(authenticateUser, getCultivationLogsByHerd);
+
 router
   .route('/upload/:id')
   .patch(authenticateUser, uploadCloud.array('images', 10), uploadImages);
+
 router
   .route('/:id')
   .get(getCultivationLog)

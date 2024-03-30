@@ -11,6 +11,11 @@ import Pest from './Pest';
 import PestCategory from './PestCategory';
 import Treatment from './Treatment';
 import Product from './Product';
+import Harvest from './Harvest';
+import Processor from './Processor';
+import TraceabilityInfo from './TraceabilityInfo';
+import ProductPatch from './ProductPatch';
+import Distributor from './Distributor';
 
 export {
   User,
@@ -26,4 +31,9 @@ export {
   PestCategory,
   Treatment,
   Product,
+  Harvest,
+  Processor,
+  TraceabilityInfo,
+  ProductPatch,
+  Distributor,
 };

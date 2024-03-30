@@ -12,6 +12,10 @@ import pestRouter from './pest';
 import diseaseRouter from './disease';
 import medicineRouter from './medicine';
 import treatmentRouter from './treatment';
+import harvestRouter from './harvest';
+import processorRouter from './processor';
+import productPatchRouter from './product-patch';
+import distributorRouter from './distributor';
 import qrCodeRouter from './qrcode';
 
 export {
@@ -29,5 +33,9 @@ export {
   diseaseRouter,
   medicineRouter,
   treatmentRouter,
+  harvestRouter,
+  processorRouter,
+  productPatchRouter,
+  distributorRouter,
   qrCodeRouter,
 };

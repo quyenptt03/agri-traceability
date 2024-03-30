@@ -1,7 +1,7 @@
 import { Schema, Types, model } from 'mongoose';
 
 interface ICultivationLog {
-  livestock: Types.ObjectId;
+  animal: Types.ObjectId;
   herd: Types.ObjectId;
   name: string;
   description: string;
@@ -11,9 +11,9 @@ interface ICultivationLog {
 }
 
 const cultivationLogSchema = new Schema<ICultivationLog>({
-  livestock: {
+  animal: {
     type: Schema.Types.ObjectId,
-    ref: 'Livestock',
+    ref: 'Animal',
   },
   herd: {
     type: Schema.Types.ObjectId,

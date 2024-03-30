@@ -88,9 +88,6 @@ const generateHerdMember = async (req: Request, res: Response) => {
   }
 
   const createdAnimals = await Animal.insertMany(animals);
-  createdAnimals.map((animal) => herd.records.push(animal));
-  await herd.save();
-
   res.status(StatusCodes.CREATED).json({ createdAnimals });
 };
 
@@ -120,14 +117,14 @@ const updateHerd = async (req: Request, res: Response) => {
   const { id: herdId } = req.params;
   const {
     name,
-    categoryId,
+    category,
     description,
     member_count,
-    farmId,
+    farm,
     start_date,
     end_date,
   } = req.body;
-  let category, farm;
+  let categoryExist, farmExist;
   const herd = await Herd.findOne({ _id: herdId });
   if (!herd) {
     throw new CustomError.NotFoundError(`No herd with id ${herdId}`);
@@ -148,22 +145,22 @@ const updateHerd = async (req: Request, res: Response) => {
   if (end_date) {
     herd.end_date = end_date;
   }
-  if (categoryId) {
-    category = await Category.findOne({ _id: categoryId });
+  if (category) {
+    categoryExist = await Category.findOne({ _id: category });
     if (!category) {
       throw new CustomError.BadRequestError('Category does not exists.');
     }
 
-    herd.category = category._id;
+    herd.category = category;
   }
 
-  if (farmId) {
-    farm = await Farm.findOne({ _id: farmId });
-    if (!farm) {
+  if (farm) {
+    farmExist = await Farm.findOne({ _id: farm });
+    if (!farmExist) {
       throw new CustomError.BadRequestError('Farm does not exists.');
     }
 
-    herd.farm = farm._id;
+    herd.farm = farm;
   }
   await herd.save();
 
@@ -210,6 +207,11 @@ const uploadImages = async (req: Request, res: Response) => {
   herd.save();
 
   res.status(StatusCodes.CREATED).json({ herd });
+};
+
+const seperateHerd = async (req: Request, res: Response) => {
+  const { id: herdId } = req.params;
+  const herd = Herd.findOne({ _id: herdId });
 };
 
 export {

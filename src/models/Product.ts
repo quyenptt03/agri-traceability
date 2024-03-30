@@ -2,11 +2,14 @@ import { Schema, Types, model } from 'mongoose';
 interface IProduct {
   name: string;
   description: string;
+  price: number;
+  unit: string;
   images: object[];
   notes: string;
   production_date: Date;
   expiration_date: Date;
-  herd: Types.ObjectId;
+  storage_method: string;
+  qrcode: string;
   user: Types.ObjectId;
 }
 
@@ -20,6 +23,20 @@ const productSchema = new Schema<IProduct>({
   description: {
     type: String,
     required: [true, 'Please provide farm product description'],
+  },
+  price: {
+    type: Number,
+    required: [true, 'Please provide the price'],
+    validate: {
+      validator: function (v: number) {
+        return v > 0;
+      },
+      message: (props) => `${props.value} is not a positive number!`,
+    },
+  },
+  unit: {
+    type: String,
+    default: 'Đồng',
   },
   images: {
     type: [
@@ -41,10 +58,12 @@ const productSchema = new Schema<IProduct>({
     type: Date,
     required: [true, "Please provide product's expiration date"],
   },
-  herd: {
-    type: Schema.Types.ObjectId,
-    ref: 'Herd',
-    require: true,
+  storage_method: {
+    type: String,
+    maxLength: [500, 'Storage method can not be more than 500 characters'],
+  },
+  qrcode: {
+    type: String,
   },
   user: {
     type: Schema.Types.ObjectId,

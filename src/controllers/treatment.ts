@@ -16,38 +16,24 @@ const getAllTreatment = async (req: Request, res: Response) => {
   res.status(StatusCodes.OK).json({ treatments, count: treatments.length });
 };
 
-// livestock: Types.ObjectId;
-//   herd: Types.ObjectId;
-//   disease: Types.ObjectId;
-//   type: string;
-//   product: String;
-//   amount: String;
-//   mode: string;
-//   description: string;
-//   method: string;
-//   date: Date;
-//   retreat_date: Date;
-//   site: String;
-//   technician: String;
-
 const createHerdTreatment = async (req: Request, res: Response) => {
-  const { herdId, diseaseId, type } = req.body;
-  let disease;
+  const { herd, disease, type } = req.body;
+  let diseaseExist;
 
-  if (!herdId) {
+  if (!herd) {
     throw new CustomError.BadRequestError('Please provide herd');
   }
 
-  const herd = await Herd.findOne({
-    _id: herdId,
+  const herdExist = await Herd.findOne({
+    _id: herd,
   });
 
-  if (!herd) {
+  if (!herdExist) {
     throw new CustomError.BadRequestError('Herd does not exist');
   }
 
-  if (diseaseId) {
-    disease = await Disease.findOne({ _id: diseaseId });
+  if (disease) {
+    diseaseExist = await Disease.findOne({ _id: disease });
     if (!disease) {
       throw new CustomError.BadRequestError('Disease doese not exists');
     }
@@ -58,11 +44,7 @@ const createHerdTreatment = async (req: Request, res: Response) => {
       'Please provide all the type of treatment'
     );
   }
-  const treatment = await Treatment.create({
-    ...req.body,
-    herd: herd._id,
-    disease: diseaseId,
-  });
+  const treatment = await Treatment.create(req.body);
 
   res.status(StatusCodes.CREATED).json({ treatment });
 };
@@ -99,11 +81,11 @@ const getTreatment = async (req: Request, res: Response) => {
 
 const updateTreatment = async (req: Request, res: Response) => {
   const { id: treatmentId } = req.params;
-  let disease;
-  if (req.body.diseaseId) {
-    disease = await Disease.findOne({ _id: req.body.diseaseId });
+  let diseaseExist;
+  if (req.body.disease) {
+    diseaseExist = await Disease.findOne({ _id: req.body.disease });
 
-    if (!disease) {
+    if (!diseaseExist) {
       throw new CustomError.BadRequestError(`The disease does not exists`);
     }
   }

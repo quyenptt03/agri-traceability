@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import { StatusCodes } from 'http-status-codes';
 import CustomError from '../errors';
-import { CultivationLog, Herd } from '../models';
+import { Animal, CultivationLog, Herd } from '../models';
 import { remove, upload } from './cloudinary';
 
 const getAllCultivationLogs = async (req: Request, res: Response) => {
@@ -12,13 +12,13 @@ const getAllCultivationLogs = async (req: Request, res: Response) => {
 };
 
 const createHerdCultivationLog = async (req: Request, res: Response) => {
-  const { herdId, name, description, notes, date } = req.body;
+  const { herd, name, description, notes, date } = req.body;
 
-  if (!herdId) {
+  if (!herd) {
     throw new CustomError.BadRequestError('Please provide herd id');
   }
-  const herd = await Herd.findOne({ _id: herdId });
-  if (!herd) {
+  const herdExist = await Herd.findOne({ _id: herd });
+  if (!herdExist) {
     throw new CustomError.BadRequestError('Herd does not exists');
   }
 
@@ -27,35 +27,29 @@ const createHerdCultivationLog = async (req: Request, res: Response) => {
     description,
     notes,
     date,
-    herd: herdId,
+    herd,
   });
   res.status(StatusCodes.CREATED).json({ cultivationLog });
 };
 
 // const createCultivationLog = async (req: Request, res: Response) => {
-//   const { farmProductId, activityId, notes } = req.body;
+//   const { animalId, name, description, notes, date } = req.body;
 
-//   if (!farmProductId || !activityId) {
-//     throw new CustomError.BadRequestError(
-//       'Please provide farm product id, activity id'
-//     );
+//   if (!animalId) {
+//     throw new CustomError.BadRequestError('Please provide animal id');
 //   }
-
-//   const farmProduct = await FarmProduct.findOne({ _id: farmProductId });
-//   const activity = await Activity.findOne({ _id: activityId });
-
-//   if (!farmProduct || !activity) {
-//     throw new CustomError.BadRequestError(
-//       'Farm product or activity does not exists'
-//     );
+//   const animal = await Animal.findOne({ _id: animalId });
+//   if (!animal) {
+//     throw new CustomError.BadRequestError('Animal does not exists');
 //   }
 
 //   const cultivationLog = await CultivationLog.create({
-//     farm_product: farmProduct._id,
-//     activity: activity._id,
+//     name,
+//     description,
 //     notes,
+//     date,
+//     animal: animalId,
 //   });
-
 //   res.status(StatusCodes.CREATED).json({ cultivationLog });
 // };
 
@@ -76,6 +70,28 @@ const getCultivationLog = async (req: Request, res: Response) => {
 
   res.status(StatusCodes.OK).json({ cultivationLog });
 };
+
+// const getCultivationLogsByAnimal = async (req: Request, res: Response) => {
+//   const { id: animalId } = req.params;
+//   const animal = await Animal.findOne({ _id: animalId });
+
+//   if (!animal) {
+//     throw new CustomError.BadRequestError(`No animal with id ${animalId}`);
+//   }
+
+//   const cultivationLogsByHerd = await CultivationLog.find({
+//     herd: animal.herd,
+//   });
+
+//   const cultivationByAnimal = await CultivationLog.find({
+//     animal: animal._id,
+//   });
+
+//   res.status(StatusCodes.OK).json({
+//     ...cultivationLogsByHerd,
+//     ...cultivationByAnimal,
+//   });
+// };
 
 const getCultivationLogsByHerd = async (req: Request, res: Response) => {
   const { id: herdId } = req.params;
@@ -99,11 +115,23 @@ const getCultivationLogsByHerd = async (req: Request, res: Response) => {
 
 const updateHerdCultivationLog = async (req: Request, res: Response) => {
   const { id: cultivationLogId } = req.params;
-  const { herdId, name, description, notes, date } = req.body;
+  const { herd } = req.body;
 
-  const cultivationLog = await CultivationLog.findOne({
-    _id: cultivationLogId,
-  });
+  if (herd) {
+    const herdExist = await Herd.findOne({ _id: herd });
+    if (!herdExist) {
+      throw new CustomError.BadRequestError('The herd does not exists');
+    }
+  }
+
+  const cultivationLog = await CultivationLog.findOneAndUpdate(
+    { _id: cultivationLogId },
+    req.body,
+    {
+      runValidators: true,
+      new: true,
+    }
+  );
 
   if (!cultivationLog) {
     throw new CustomError.NotFoundError(
@@ -111,27 +139,6 @@ const updateHerdCultivationLog = async (req: Request, res: Response) => {
     );
   }
 
-  if (name) {
-    cultivationLog.name = name;
-  }
-  if (description) {
-    cultivationLog.description = description;
-  }
-  if (notes) {
-    cultivationLog.notes = notes;
-  }
-  if (date) {
-    cultivationLog.date = date;
-  }
-  if (herdId) {
-    const herd = await Herd.findOne({ _id: herdId });
-    if (!herd) {
-      throw new CustomError.BadRequestError('Herd does not exists.');
-    }
-    cultivationLog.herd = herd._id;
-  }
-
-  await cultivationLog.save();
   res.status(StatusCodes.OK).json({ cultivationLog });
 };
 
@@ -181,8 +188,10 @@ const uploadImages = async (req: Request, res: Response) => {
 
 export {
   getAllCultivationLogs,
+  // createCultivationLog,
   createHerdCultivationLog,
   getCultivationLog,
+  // getCultivationLogsByAnimal,
   getCultivationLogsByHerd,
   updateHerdCultivationLog,
   deleteCultivationLog,
