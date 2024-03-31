@@ -1,12 +1,25 @@
 import { Request, Response } from 'express';
 import { StatusCodes } from 'http-status-codes';
-import { Category, Herd, Farm, Animal } from '../models';
 import CustomError from '../errors';
-import generateQR from '../utils/generateQR';
+import { Animal, Category, Farm, Herd } from '../models';
 import { remove, upload } from './cloudinary';
 
 const getAllHerd = async (req: Request, res: Response) => {
-  const herds = await Herd.find({})
+  let sortList;
+
+  if (req.query.sort) {
+    sortList = (req.query.sort as string).split(',').join(' ');
+  }
+
+  const page = Math.abs(Number(req.query.page)) || 1;
+  const limit = Math.abs(Number(req.query.limit)) || 10;
+  const skip = (page - 1) * limit;
+
+  let herds = await Herd.find({})
+    .select('_id name start_date')
+    .skip(skip)
+    .limit(limit)
+    .sort(sortList)
     .populate({
       path: 'category',
       select: '_id name',
@@ -19,7 +32,11 @@ const getAllHerd = async (req: Request, res: Response) => {
       path: 'records',
       select: 'name',
     });
-  res.status(StatusCodes.OK).json({ herds, count: herds.length });
+
+  const totalCount = await Herd.countDocuments({});
+  const totalPages = Math.ceil(totalCount / limit);
+
+  res.status(StatusCodes.OK).json({ herds, page, totalPages });
 };
 
 const createHerd = async (req: Request, res: Response) => {
@@ -213,11 +230,11 @@ const seperateHerd = async (req: Request, res: Response) => {
 };
 
 export {
-  getAllHerd,
   createHerd,
+  deleteHerd,
   generateHerdMember,
+  getAllHerd,
   getHerd,
   updateHerd,
-  deleteHerd,
   uploadImages,
 };
