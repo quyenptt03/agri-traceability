@@ -81,6 +81,7 @@ const generateHerdMember = async (req: Request, res: Response) => {
     animals.push({
       name: `${baseName} ${i + 1}`,
       herd: herd._id,
+      birth_date: req.body.birth_date,
     });
   }
 

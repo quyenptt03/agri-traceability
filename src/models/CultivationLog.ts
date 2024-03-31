@@ -25,7 +25,6 @@ const cultivationLogSchema = new Schema<ICultivationLog>({
   },
   description: {
     type: String,
-    required: [true, "Please provide cultivation log's description"],
   },
   notes: {
     type: String,

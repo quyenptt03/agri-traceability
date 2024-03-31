@@ -9,6 +9,7 @@ import {
   Processor,
   Product,
   TraceabilityInfo,
+  Treatment,
 } from '../models';
 
 const createTraceabilityInfo = async (req: Request, res: Response) => {
@@ -54,10 +55,24 @@ const getTraceabilityInfo = async (req: Request, res: Response) => {
   }).select(
     '_id warehouse_name warehouse_address images received_date delivery_date stores'
   );
+  const treatments = await Treatment.find({
+    herd,
+    date: {
+      $lt: harvest.date,
+    },
+  });
 
   res
     .status(StatusCodes.OK)
-    .json({ product, herd, cultivationLogs, harvest, processor, distributor });
+    .json({
+      product,
+      herd,
+      cultivationLogs,
+      harvest,
+      processor,
+      distributor,
+      treatments,
+    });
 };
 
 const updateTraceabilityInfo = async (req: Request, res: Response) => {

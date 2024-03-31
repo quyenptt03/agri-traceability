@@ -66,13 +66,13 @@ const treatmentSchema = new Schema<ITreatment>({
     type: String,
     enum: {
       values: [
-        'Intramuscular (in the muscle)',
-        'Intramammary (in the udder)',
-        'Intrauterine (in the uterus)',
-        'Intravenous (in the vein)',
-        'Oral (in the mouth)',
-        'Subcutaneous (under the skin)',
-        'Topical (on the skin)',
+        'Tiêm bắp (trong cơ)',
+        'Intrammary (trong bầu vú)',
+        'Trong tử cung',
+        'Tiêm tĩnh mạch',
+        'Miệng (trong miệng)',
+        'Tiêm dưới da',
+        'Bôi ngoài (trên da)',
         'Other',
       ],
     },
@@ -90,9 +90,10 @@ const treatmentSchema = new Schema<ITreatment>({
   },
   site: {
     type: String,
-    enum: {
-      values: ['Rump', 'Flank', 'Neck', 'Other'],
-    },
+    // enum: {
+    //   values: [
+    //     'Mông', 'Sườn', 'Cổ', 'Khác'],
+    // },
   },
   technician: {
     type: String,

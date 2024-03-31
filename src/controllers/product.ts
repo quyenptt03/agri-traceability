@@ -24,7 +24,7 @@ const createProduct = async (req: Request, res: Response) => {
 
   if (!name || !price || !description || !expiration_date || !storage_method) {
     throw new CustomError.BadRequestError(
-      'Please provide name, price, description, expiration date, storage of product'
+      'Please provide name, price, description, expiration date, storage method of product'
     );
   }
 
