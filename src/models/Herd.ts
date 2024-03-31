@@ -11,7 +11,6 @@ interface IHerd {
   start_date: Date;
   end_date: Date;
   records: object[];
-  qrcode: string;
   user: Types.ObjectId;
 }
 
@@ -67,9 +66,6 @@ const HerdSchema = new Schema<IHerd>(
         ref: 'Animal',
       },
     ],
-    qrcode: {
-      type: String,
-    },
     user: {
       type: Schema.Types.ObjectId,
       ref: 'User',

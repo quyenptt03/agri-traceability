@@ -61,9 +61,6 @@ const createHerd = async (req: Request, res: Response) => {
     end_date,
   });
 
-  const qrcode = await generateQR(herd._id.valueOf().toString());
-  herd.qrcode = qrcode;
-  await herd.save();
   res.status(StatusCodes.CREATED).json({ herd });
 };
 
