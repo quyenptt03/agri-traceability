@@ -46,6 +46,9 @@ const createProductPatch = async (req: Request, res: Response) => {
   if (!productExist) {
     throw new CustomError.BadRequestError('Product does not exist');
   }
+  if (productExist.qrcode) {
+    throw new CustomError.BadRequestError('Product already used.');
+  }
 
   if (!quantity || !release_date) {
     throw new CustomError.BadRequestError(
