@@ -52,7 +52,7 @@ const getTraceabilityInfo = async (req: Request, res: Response) => {
   const distributor = await Distributor.findOne({
     _id: info.distributor,
   }).select(
-    '_id warehouse_name warehouse_address images received_date delivery_date'
+    '_id warehouse_name warehouse_address images received_date delivery_date stores'
   );
 
   res
