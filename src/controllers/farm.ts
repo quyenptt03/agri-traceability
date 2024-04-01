@@ -5,9 +5,33 @@ import CustomError from '../errors';
 import { remove, upload } from './cloudinary';
 
 const getAllFarm = async (req: Request, res: Response) => {
-  const farms = await Farm.find({});
+  const { searchQuery, sort } = req.query;
+  const queryObject: any = {};
+  let sortList;
 
-  res.status(StatusCodes.OK).send({ farms, count: farms.length });
+  if (sort) {
+    sortList = (sort as string).split(',').join(' ');
+  }
+
+  if (searchQuery) {
+    queryObject.name = { $regex: searchQuery, $options: 'i' };
+  }
+
+  const page: number = Math.abs(Number(req.query.page)) || 1;
+  const limit: number = Math.abs(Number(req.query.limit)) || 10;
+  const skip: number = (page - 1) * limit;
+
+  const farms = await Farm.find(queryObject)
+    .skip(skip)
+    .limit(limit)
+    .sort(sortList);
+
+  const totalCount: number = await Farm.countDocuments(queryObject);
+  const totalPages: number = Math.ceil(totalCount / limit);
+
+  res
+    .status(StatusCodes.OK)
+    .send({ farms, count: farms.length, page, totalPages });
 };
 
 const createFarm = async (req: Request, res: Response) => {

@@ -5,10 +5,32 @@ import { Animal, CultivationLog, Herd } from '../models';
 import { remove, upload } from './cloudinary';
 
 const getAllCultivationLogs = async (req: Request, res: Response) => {
-  const cultivationLogs = await CultivationLog.find({});
+  const { searchQuery, sort } = req.query;
+  const queryObject: any = {};
+  let sortList;
+
+  if (sort) {
+    sortList = (sort as string).split(',').join(' ');
+  }
+
+  if (searchQuery) {
+    queryObject.name = { $regex: searchQuery, $options: 'i' };
+  }
+
+  const page = Math.abs(Number(req.query.page)) || 1;
+  const limit = Math.abs(Number(req.query.limit)) || 10;
+  const skip = (page - 1) * limit;
+
+  const cultivationLogs = await CultivationLog.find(queryObject)
+    .skip(skip)
+    .limit(limit)
+    .sort(sortList);
+
+  const totalCount: number = await CultivationLog.countDocuments(queryObject);
+  const totalPages: number = Math.ceil(totalCount / limit);
   res
     .status(StatusCodes.OK)
-    .json({ cultivationLogs, count: cultivationLogs.length });
+    .json({ cultivationLogs, count: cultivationLogs.length, page, totalPages });
 };
 
 const createHerdCultivationLog = async (req: Request, res: Response) => {
@@ -101,16 +123,43 @@ const getCultivationLogsByHerd = async (req: Request, res: Response) => {
     throw new CustomError.BadRequestError(`No herd with id ${herdId}`);
   }
 
+  const { searchQuery, sort } = req.query;
+  const queryObject: any = {};
+  let sortList;
+
+  if (sort) {
+    sortList = (sort as string).split(',').join(' ');
+  }
+
+  if (searchQuery) {
+    queryObject.name = { $regex: searchQuery, $options: 'i' };
+  }
+
+  const page = Math.abs(Number(req.query.page)) || 1;
+  const limit = Math.abs(Number(req.query.limit)) || 10;
+  const skip = (page - 1) * limit;
+
   const cultivationLogs = await CultivationLog.find({
     herd: herdId,
-  }).populate({
-    path: 'herd',
-    select: '_id name',
+    ...queryObject,
+  })
+    .skip(skip)
+    .limit(limit)
+    .sort(sortList)
+    .populate({
+      path: 'herd',
+      select: '_id name',
+    });
+
+  const totalCount: number = await CultivationLog.countDocuments({
+    herd: herdId,
+    ...queryObject,
   });
+  const totalPages: number = Math.ceil(totalCount / limit);
 
   res
     .status(StatusCodes.OK)
-    .json({ cultivationLogs, count: cultivationLogs.length });
+    .json({ cultivationLogs, count: cultivationLogs.length, page, totalPages });
 };
 
 const updateHerdCultivationLog = async (req: Request, res: Response) => {

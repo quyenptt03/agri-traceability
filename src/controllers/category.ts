@@ -6,8 +6,33 @@ import CustomError from '../errors';
 import { remove, upload } from './cloudinary';
 
 const getAllCategories = async (req: Request, res: Response) => {
-  const categories = await Category.find({});
-  res.status(StatusCodes.OK).send({ categories, count: categories.length });
+  const { searchQuery, sort } = req.query;
+  const queryObject: any = {};
+  let sortList;
+
+  if (sort) {
+    sortList = (sort as string).split(',').join(' ');
+  }
+
+  if (searchQuery) {
+    queryObject.name = { $regex: searchQuery, $options: 'i' };
+  }
+
+  const page: number = Math.abs(Number(req.query.page)) || 1;
+  const limit: number = Math.abs(Number(req.query.limit)) || 10;
+  const skip: number = (page - 1) * limit;
+
+  const categories = await Category.find(queryObject)
+    .skip(skip)
+    .limit(limit)
+    .sort(sortList);
+
+  const totalCount: number = await Category.countDocuments(queryObject);
+  const totalPages: number = Math.ceil(totalCount / limit);
+
+  res
+    .status(StatusCodes.OK)
+    .send({ categories, count: categories.length, page, totalPages });
 };
 
 const createCategory = async (req: Request, res: Response) => {

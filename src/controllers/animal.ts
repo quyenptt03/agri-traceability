@@ -5,16 +5,40 @@ import CustomError from '../errors';
 import { remove, upload } from './cloudinary';
 
 const getAllAnimals = async (req: Request, res: Response) => {
-  const animals = await Animal.find({}).populate({
-    path: 'herd',
-    select: 'herd',
-    populate: {
-      path: 'category',
-      select: 'name',
-    },
-  });
+  const { searchQuery, sort } = req.query;
+  const queryObject: any = {};
+  let sortList;
 
-  res.status(StatusCodes.OK).json({ animals, count: animals.length });
+  if (sort) {
+    sortList = (sort as string).split(',').join(' ');
+  }
+
+  if (searchQuery) {
+    queryObject.name = { $regex: searchQuery, $options: 'i' };
+  }
+
+  const page: number = Math.abs(Number(req.query.page)) || 1;
+  const limit: number = Math.abs(Number(req.query.limit)) || 10;
+  const skip: number = (page - 1) * limit;
+
+  const animals = await Animal.find(queryObject)
+    .skip(skip)
+    .limit(limit)
+    .sort(sortList)
+    .populate({
+      path: 'herd',
+      select: 'herd',
+      populate: {
+        path: 'category',
+        select: 'name',
+      },
+    });
+  const totalCount: number = await Animal.countDocuments(queryObject);
+  const totalPages: number = Math.ceil(totalCount / limit);
+
+  res
+    .status(StatusCodes.OK)
+    .json({ animals, count: animals.length, page, totalPages });
 };
 
 const createAnimal = async (req: Request, res: Response) => {

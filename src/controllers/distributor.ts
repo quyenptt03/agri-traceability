@@ -5,8 +5,32 @@ import { Distributor, ProductPatch, TraceabilityInfo } from '../models';
 import { remove, upload } from './cloudinary';
 
 const getAllDistributors = async (req: Request, res: Response) => {
-  const distributors = await Distributor.find({});
-  res.status(StatusCodes.OK).json({ distributors, count: distributors.length });
+  const { searchQuery, sort } = req.query;
+  const queryObject: any = {};
+  let sortList;
+
+  if (sort) {
+    sortList = (sort as string).split(',').join(' ');
+  }
+
+  if (searchQuery) {
+    queryObject.name = { $regex: searchQuery, $options: 'i' };
+  }
+
+  const page: number = Math.abs(Number(req.query.page)) || 1;
+  const limit: number = Math.abs(Number(req.query.limit)) || 10;
+  const skip: number = (page - 1) * limit;
+
+  const distributors = await Distributor.find(queryObject)
+    .skip(skip)
+    .limit(limit)
+    .sort(sortList);
+
+  const totalCount: number = await Distributor.countDocuments(queryObject);
+  const totalPages: number = Math.ceil(totalCount / limit);
+  res
+    .status(StatusCodes.OK)
+    .json({ distributors, count: distributors.length, page, totalPages });
 };
 
 const createDistributor = async (req: Request, res: Response) => {

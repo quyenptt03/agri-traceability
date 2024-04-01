@@ -5,8 +5,33 @@ import { Disease } from '../models';
 import { remove, upload } from './cloudinary';
 
 const getAllDiseases = async (req: Request, res: Response) => {
-  const diseases = await Disease.find({});
-  res.status(StatusCodes.OK).json({ diseases, count: diseases.length });
+  const { searchQuery, sort } = req.query;
+  const queryObject: any = {};
+  let sortList;
+
+  if (sort) {
+    sortList = (sort as string).split(',').join(' ');
+  }
+
+  if (searchQuery) {
+    queryObject.name = { $regex: searchQuery, $options: 'i' };
+  }
+
+  const page: number = Math.abs(Number(req.query.page)) || 1;
+  const limit: number = Math.abs(Number(req.query.limit)) || 10;
+  const skip: number = (page - 1) * limit;
+
+  const diseases = await Disease.find(queryObject)
+    .skip(skip)
+    .limit(limit)
+    .sort(sortList);
+
+  const totalCount: number = await Disease.countDocuments(queryObject);
+  const totalPages: number = Math.ceil(totalCount / limit);
+
+  res
+    .status(StatusCodes.OK)
+    .json({ diseases, count: diseases.length, page, totalPages });
 };
 
 const createDisease = async (req: Request, res: Response) => {

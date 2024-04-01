@@ -1,14 +1,40 @@
 import { Request, Response } from 'express';
 import { StatusCodes } from 'http-status-codes';
 import CustomError from '../errors';
-import { Harvest, Herd, Processor } from '../models';
+import { Harvest, Processor } from '../models';
 import { remove, upload } from './cloudinary';
 
 const getAllProcessors = async (req: Request, res: Response) => {
-  const processor = await Processor.find({}).populate({
-    path: 'harvest',
-  });
-  res.status(StatusCodes.OK).json({ processor, count: processor.length });
+  const { searchQuery, sort } = req.query;
+  const queryObject: any = {};
+  let sortList;
+
+  if (sort) {
+    sortList = (sort as string).split(',').join(' ');
+  }
+
+  if (searchQuery) {
+    queryObject.name = { $regex: searchQuery, $options: 'i' };
+  }
+
+  const page: number = Math.abs(Number(req.query.page)) || 1;
+  const limit: number = Math.abs(Number(req.query.limit)) || 10;
+  const skip: number = (page - 1) * limit;
+
+  const processor = await Processor.find(queryObject)
+    .skip(skip)
+    .limit(limit)
+    .sort(sortList)
+    .populate({
+      path: 'harvest',
+    });
+
+  const totalCount: number = await Harvest.countDocuments(queryObject);
+  const totalPages: number = Math.ceil(totalCount / limit);
+
+  res
+    .status(StatusCodes.OK)
+    .json({ processor, count: processor.length, page, totalPages });
 };
 
 const createProcessor = async (req: Request, res: Response) => {
@@ -117,10 +143,10 @@ const uploadImages = async (req: Request, res: Response) => {
 };
 
 export {
-  getAllProcessors,
   createProcessor,
+  deleteProcessor,
+  getAllProcessors,
   getProcessor,
   updateProcessor,
-  deleteProcessor,
   uploadImages,
 };

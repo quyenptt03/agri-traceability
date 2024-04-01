@@ -5,8 +5,32 @@ import { Harvest, Herd } from '../models';
 import { remove, upload } from './cloudinary';
 
 const getAllHarvests = async (req: Request, res: Response) => {
-  const harvests = await Harvest.find({});
-  res.status(StatusCodes.OK).json({ harvests, count: harvests.length });
+  const { searchQuery, sort } = req.query;
+  const queryObject: any = {};
+  let sortList;
+
+  if (sort) {
+    sortList = (sort as string).split(',').join(' ');
+  }
+
+  if (searchQuery) {
+    queryObject.name = { $regex: searchQuery, $options: 'i' };
+  }
+
+  const page: number = Math.abs(Number(req.query.page)) || 1;
+  const limit: number = Math.abs(Number(req.query.limit)) || 10;
+  const skip: number = (page - 1) * limit;
+
+  const harvests = await Harvest.find(queryObject)
+    .skip(skip)
+    .limit(limit)
+    .sort(sortList);
+
+  const totalCount: number = await Harvest.countDocuments(queryObject);
+  const totalPages: number = Math.ceil(totalCount / limit);
+  res
+    .status(StatusCodes.OK)
+    .json({ harvests, count: harvests.length, page, totalPages });
 };
 
 const createHarvest = async (req: Request, res: Response) => {

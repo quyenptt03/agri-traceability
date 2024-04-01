@@ -17,9 +17,9 @@ const getAllHerd = async (req: Request, res: Response) => {
     queryObject.name = { $regex: searchQuery, $options: 'i' };
   }
 
-  const page = Math.abs(Number(req.query.page)) || 1;
-  const limit = Math.abs(Number(req.query.limit)) || 10;
-  const skip = (page - 1) * limit;
+  const page: number = Math.abs(Number(req.query.page)) || 1;
+  const limit: number = Math.abs(Number(req.query.limit)) || 10;
+  const skip: number = (page - 1) * limit;
 
   let herds = await Herd.find(queryObject)
     // .select('_id name start_date')
@@ -39,10 +39,12 @@ const getAllHerd = async (req: Request, res: Response) => {
       select: 'name',
     });
 
-  const totalCount = await Herd.countDocuments({});
-  const totalPages = Math.ceil(totalCount / limit);
+  const totalCount: number = await Herd.countDocuments(queryObject);
+  const totalPages: number = Math.ceil(totalCount / limit);
 
-  res.status(StatusCodes.OK).json({ herds, page, totalPages });
+  res
+    .status(StatusCodes.OK)
+    .json({ herds, count: herds.length, page, totalPages });
 };
 
 const createHerd = async (req: Request, res: Response) => {

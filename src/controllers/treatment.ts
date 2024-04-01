@@ -4,7 +4,26 @@ import CustomError from '../errors';
 import { Disease, Herd, Medicine, Pest, Treatment } from '../models';
 
 const getAllTreatment = async (req: Request, res: Response) => {
-  const treatments = await Treatment.find({})
+  const { searchQuery, sort } = req.query;
+  const queryObject: any = {};
+  let sortList;
+
+  if (sort) {
+    sortList = (sort as string).split(',').join(' ');
+  }
+
+  if (searchQuery) {
+    queryObject.name = { $regex: searchQuery, $options: 'i' };
+  }
+
+  const page: number = Math.abs(Number(req.query.page)) || 1;
+  const limit: number = Math.abs(Number(req.query.limit)) || 10;
+  const skip: number = (page - 1) * limit;
+
+  const treatments = await Treatment.find(queryObject)
+    .skip(skip)
+    .limit(limit)
+    .sort(sortList)
     .populate({
       path: 'herd',
       select: '_id name',
@@ -13,7 +32,13 @@ const getAllTreatment = async (req: Request, res: Response) => {
       path: 'disease',
       select: '_id name',
     });
-  res.status(StatusCodes.OK).json({ treatments, count: treatments.length });
+
+  const totalCount: number = await Treatment.countDocuments(queryObject);
+  const totalPages: number = Math.ceil(totalCount / limit);
+
+  res
+    .status(StatusCodes.OK)
+    .json({ treatments, count: treatments.length, page, totalPages });
 };
 
 const createHerdTreatment = async (req: Request, res: Response) => {

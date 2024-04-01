@@ -13,10 +13,32 @@ import { remove, upload } from './cloudinary';
 import generateQR from '../utils/generateQR';
 
 const getAllProductPatchs = async (req: Request, res: Response) => {
-  const productPatchs = await ProductPatch.find({});
+  const { searchQuery, sort } = req.query;
+  const queryObject: any = {};
+  let sortList;
+
+  if (sort) {
+    sortList = (sort as string).split(',').join(' ');
+  }
+
+  if (searchQuery) {
+    queryObject.name = { $regex: searchQuery, $options: 'i' };
+  }
+
+  const page: number = Math.abs(Number(req.query.page)) || 1;
+  const limit: number = Math.abs(Number(req.query.limit)) || 10;
+  const skip: number = (page - 1) * limit;
+
+  const productPatchs = await ProductPatch.find(queryObject)
+    .skip(skip)
+    .limit(limit)
+    .sort(sortList);
+
+  const totalCount: number = await Harvest.countDocuments(queryObject);
+  const totalPages: number = Math.ceil(totalCount / limit);
   res
     .status(StatusCodes.OK)
-    .json({ productPatchs, count: productPatchs.length });
+    .json({ productPatchs, count: productPatchs.length, page, totalPages });
 };
 
 const createProductPatch = async (req: Request, res: Response) => {

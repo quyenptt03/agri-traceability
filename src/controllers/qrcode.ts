@@ -29,6 +29,9 @@ const getTraceabilityInfo = async (req: Request, res: Response) => {
   const herd = await Herd.findOne({
     _id: info.herd,
   })
+    .select(
+      '_id name description member_count category location farm images start_date end_date'
+    )
     .populate({
       path: 'category',
       select: '_id name description',
@@ -62,17 +65,15 @@ const getTraceabilityInfo = async (req: Request, res: Response) => {
     },
   });
 
-  res
-    .status(StatusCodes.OK)
-    .json({
-      product,
-      herd,
-      cultivationLogs,
-      harvest,
-      processor,
-      distributor,
-      treatments,
-    });
+  res.status(StatusCodes.OK).json({
+    product,
+    herd,
+    cultivationLogs,
+    harvest,
+    processor,
+    distributor,
+    treatments,
+  });
 };
 
 const updateTraceabilityInfo = async (req: Request, res: Response) => {

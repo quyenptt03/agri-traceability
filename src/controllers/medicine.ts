@@ -5,8 +5,33 @@ import { Medicine, Pest, PestCategory } from '../models';
 import { remove, upload } from './cloudinary';
 
 const getAllMedicine = async (req: Request, res: Response) => {
-  const medicines = await Medicine.find({});
-  res.status(StatusCodes.OK).json({ medicines, count: medicines.length });
+  const { searchQuery, sort } = req.query;
+  const queryObject: any = {};
+  let sortList;
+
+  if (sort) {
+    sortList = (sort as string).split(',').join(' ');
+  }
+
+  if (searchQuery) {
+    queryObject.name = { $regex: searchQuery, $options: 'i' };
+  }
+
+  const page: number = Math.abs(Number(req.query.page)) || 1;
+  const limit: number = Math.abs(Number(req.query.limit)) || 10;
+  const skip: number = (page - 1) * limit;
+
+  const medicines = await Medicine.find(queryObject)
+    .skip(skip)
+    .limit(limit)
+    .sort(sortList);
+
+  const totalCount: number = await Medicine.countDocuments(queryObject);
+  const totalPages: number = Math.ceil(totalCount / limit);
+
+  res
+    .status(StatusCodes.OK)
+    .json({ medicines, count: medicines.length, page, totalPages });
 };
 
 const createMedicine = async (req: Request, res: Response) => {
