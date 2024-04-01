@@ -5,18 +5,24 @@ import { Animal, Category, Farm, Herd } from '../models';
 import { remove, upload } from './cloudinary';
 
 const getAllHerd = async (req: Request, res: Response) => {
+  const { searchQuery, sort } = req.query;
+  const queryObject: any = {};
   let sortList;
 
-  if (req.query.sort) {
-    sortList = (req.query.sort as string).split(',').join(' ');
+  if (sort) {
+    sortList = (sort as string).split(',').join(' ');
+  }
+
+  if (searchQuery) {
+    queryObject.name = { $regex: searchQuery, $options: 'i' };
   }
 
   const page = Math.abs(Number(req.query.page)) || 1;
   const limit = Math.abs(Number(req.query.limit)) || 10;
   const skip = (page - 1) * limit;
 
-  let herds = await Herd.find({})
-    .select('_id name start_date')
+  let herds = await Herd.find(queryObject)
+    // .select('_id name start_date')
     .skip(skip)
     .limit(limit)
     .sort(sortList)
