@@ -78,7 +78,14 @@ const createProductPatch = async (req: Request, res: Response) => {
     );
   }
 
-  const productPatch = await ProductPatch.create(req.body);
+  const productPatch = await ProductPatch.create({
+    processor,
+    product,
+    quantity,
+    description,
+    production_date,
+    release_date,
+  });
 
   const harvest = await Harvest.findOne({ _id: processorExist.harvest });
   if (!harvest) {

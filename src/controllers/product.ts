@@ -53,7 +53,15 @@ const createProduct = async (req: Request, res: Response) => {
     );
   }
 
-  const product = await Product.create(req.body);
+  const product = await Product.create({
+    name,
+    description,
+    price,
+    storage_method,
+    production_date,
+    expiration_date,
+    notes,
+  });
 
   res.status(StatusCodes.CREATED).json({
     product,

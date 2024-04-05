@@ -34,6 +34,7 @@ const getAllHarvests = async (req: Request, res: Response) => {
 };
 
 const createHarvest = async (req: Request, res: Response) => {
+  const { name, quantity, unit, date, description, grade } = req.body;
   if (!req.body.herd) {
     throw new CustomError.BadRequestError('Please provide herd id');
   }
@@ -43,7 +44,15 @@ const createHarvest = async (req: Request, res: Response) => {
     throw new CustomError.BadRequestError('Herd does not exists');
   }
 
-  const harvest = await Harvest.create(req.body);
+  const harvest = await Harvest.create({
+    herd: herd._id,
+    name,
+    quantity,
+    unit,
+    date,
+    description,
+    grade,
+  });
 
   res.status(StatusCodes.CREATED).json({ harvest });
 };
@@ -94,6 +103,8 @@ const updateHarvest = async (req: Request, res: Response) => {
   if (!harvest) {
     throw new CustomError.NotFoundError(`No harvest with id ${harvestId}`);
   }
+
+  await harvest.populate({ path: 'herd', select: '_id name' });
 
   res.status(StatusCodes.OK).json({ harvest });
 };

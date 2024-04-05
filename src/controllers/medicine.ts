@@ -60,7 +60,17 @@ const createMedicine = async (req: Request, res: Response) => {
     throw new CustomError.BadRequestError('Please provide all infomation');
   }
 
-  const medicine = await Medicine.create(req.body);
+  const medicine = await Medicine.create({
+    name,
+    description,
+    ingredients,
+    usage_instruction,
+    toxicity,
+    dosage,
+    isolation,
+    recommendation,
+    certificate,
+  });
   res.status(StatusCodes.CREATED).json({ medicine });
 };
 

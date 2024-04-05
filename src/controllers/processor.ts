@@ -38,6 +38,7 @@ const getAllProcessors = async (req: Request, res: Response) => {
 };
 
 const createProcessor = async (req: Request, res: Response) => {
+  const { name, location, description, date } = req.body;
   if (!req.body.harvest) {
     throw new CustomError.BadRequestError("Please provide harvest's id");
   }
@@ -49,13 +50,19 @@ const createProcessor = async (req: Request, res: Response) => {
     );
   }
 
-  if (!req.body.name || !req.body.location) {
+  if (!name || !location) {
     throw new CustomError.BadRequestError(
       'Please provide name and location of processor'
     );
   }
 
-  const processor = await Processor.create(req.body);
+  const processor = await Processor.create({
+    harvest: harvest._id,
+    name,
+    location,
+    description,
+    date,
+  });
 
   res.status(StatusCodes.CREATED).json({ processor });
 };

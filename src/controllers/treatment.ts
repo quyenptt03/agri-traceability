@@ -42,7 +42,19 @@ const getAllTreatment = async (req: Request, res: Response) => {
 };
 
 const createHerdTreatment = async (req: Request, res: Response) => {
-  const { herd, disease, type } = req.body;
+  const {
+    herd,
+    disease,
+    type,
+    product,
+    amount,
+    mode,
+    description,
+    date,
+    retreat_date,
+    site,
+    technician,
+  } = req.body;
   let diseaseExist;
 
   if (!herd) {
@@ -69,7 +81,19 @@ const createHerdTreatment = async (req: Request, res: Response) => {
       'Please provide all the type of treatment'
     );
   }
-  const treatment = await Treatment.create(req.body);
+  const treatment = await Treatment.create({
+    herd,
+    disease,
+    type,
+    product,
+    amount,
+    mode,
+    description,
+    date,
+    retreat_date,
+    site,
+    technician,
+  });
 
   res.status(StatusCodes.CREATED).json({ treatment });
 };

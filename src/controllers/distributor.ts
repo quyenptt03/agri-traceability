@@ -34,7 +34,14 @@ const getAllDistributors = async (req: Request, res: Response) => {
 };
 
 const createDistributor = async (req: Request, res: Response) => {
-  const { product_patch, warehouse_name, warehouse_address, stores } = req.body;
+  const {
+    product_patch,
+    warehouse_name,
+    warehouse_address,
+    stores,
+    delivery_date,
+    received_date,
+  } = req.body;
 
   if (!product_patch) {
     throw new CustomError.BadRequestError('Please provide product patch');
@@ -51,7 +58,14 @@ const createDistributor = async (req: Request, res: Response) => {
     );
   }
 
-  const distributor = await Distributor.create(req.body);
+  const distributor = await Distributor.create({
+    product_patch,
+    warehouse_name,
+    warehouse_address,
+    stores,
+    delivery_date,
+    received_date,
+  });
   const info = await TraceabilityInfo.findOne({ _id: productPatch.info });
   info.distributor = distributor._id;
   await info.save();
