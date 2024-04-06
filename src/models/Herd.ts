@@ -10,6 +10,7 @@ interface IHerd {
   member_count: number;
   start_date: Date;
   end_date: Date;
+  // is_harvested: boolean;
   records: object[];
   user: Types.ObjectId;
 }
@@ -60,6 +61,10 @@ const HerdSchema = new Schema<IHerd>(
     end_date: {
       type: Date,
     },
+    // is_harvested: {
+    //   type: Boolean,
+    //   default: false,
+    // },
     records: [
       {
         type: Schema.Types.ObjectId,

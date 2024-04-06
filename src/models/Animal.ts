@@ -7,7 +7,6 @@ interface IAnimal {
   gender: string;
   birth_weight: number;
   birth_date: Date;
-  is_harvested: boolean;
   herd: Types.ObjectId;
   images: object[];
   user: Types.ObjectId;
@@ -39,10 +38,6 @@ const animalSchema = new Schema<IAnimal>({
   birth_date: {
     type: Date,
     default: Date.now,
-  },
-  is_harvested: {
-    type: Boolean,
-    default: false,
   },
   herd: {
     type: Schema.Types.ObjectId,

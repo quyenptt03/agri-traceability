@@ -8,6 +8,7 @@ interface IHarvest {
   date: Date;
   description: string;
   grade: string;
+  isProcessed: boolean;
   images: object[];
 }
 
@@ -45,6 +46,10 @@ const harvestSchema = new Schema<IHarvest>(
     },
     grade: {
       type: String,
+    },
+    isProcessed: {
+      type: Boolean,
+      default: false,
     },
     images: {
       type: [

@@ -64,6 +64,9 @@ const createProcessor = async (req: Request, res: Response) => {
     date,
   });
 
+  harvest.isProcessed = true;
+  await harvest.save();
+
   res.status(StatusCodes.CREATED).json({ processor });
 };
 
@@ -80,32 +83,81 @@ const getProcessor = async (req: Request, res: Response) => {
   res.status(StatusCodes.OK).json({ processor });
 };
 
+// const updateProcessor = async (req: Request, res: Response) => {
+//   const { id: processorId } = req.params;
+//   let harvestExist;
+
+//   if (req.body.harvest) {
+//     harvestExist = await Harvest.findOne({ _id: req.body.harvest });
+//     if (!harvestExist) {
+//       throw new CustomError.BadRequestError(
+//         `No harvest with id ${req.body.harvest}`
+//       );
+//     }
+//   }
+
+//   const processor = await Processor.findOneAndUpdate(
+//     { _id: processorId },
+//     req.body,
+//     {
+//       runValidators: true,
+//       new: true,
+//     }
+//   );
+
+//   if (!processor) {
+//     throw new CustomError.NotFoundError(`No processor with id ${processorId}`);
+//   }
+
+//   res.status(StatusCodes.OK).json({ processor });
+// };
+
 const updateProcessor = async (req: Request, res: Response) => {
   const { id: processorId } = req.params;
-  let harvestExist;
+  const { name, location, description, date, harvest } = req.body;
 
-  if (req.body.harvest) {
-    harvestExist = await Harvest.findOne({ _id: req.body.harvest });
-    if (!harvestExist) {
-      throw new CustomError.BadRequestError(
-        `No harvest with id ${req.body.harvest}`
-      );
-    }
-  }
-
-  const processor = await Processor.findOneAndUpdate(
-    { _id: processorId },
-    req.body,
-    {
-      runValidators: true,
-      new: true,
-    }
-  );
+  const processor = await Processor.findOne({ _id: processorId });
 
   if (!processor) {
-    throw new CustomError.NotFoundError(`No processor with id ${processorId}`);
+    throw new CustomError.NotFoundError(`No processor with id ${processor}`);
   }
 
+  if (name) {
+    processor.name = name;
+  }
+
+  if (location) {
+    processor.location = location;
+  }
+
+  if (description) {
+    processor.description = description;
+  }
+
+  if (date) {
+    processor.date = date;
+  }
+
+  if (harvest !== processor.harvest.toString()) {
+    const newHarvest = await Harvest.findOne({ _id: harvest });
+    if (!newHarvest) {
+      throw new CustomError.BadRequestError(`No harvest with id ${harvest}`);
+    }
+    const oldHarvest = await Harvest.findOne({ _id: processor.harvest });
+    if (!newHarvest) {
+      throw new CustomError.BadRequestError('Old harvest is not exists');
+    }
+
+    processor.harvest = newHarvest._id;
+
+    oldHarvest.isProcessed = false;
+    await oldHarvest.save();
+
+    newHarvest.isProcessed = true;
+    await newHarvest.save();
+  }
+
+  await processor.save();
   res.status(StatusCodes.OK).json({ processor });
 };
 
