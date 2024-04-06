@@ -24,7 +24,8 @@ const getAllHarvests = async (req: Request, res: Response) => {
   const harvests = await Harvest.find(queryObject)
     .skip(skip)
     .limit(limit)
-    .sort(sortList);
+    .sort(sortList)
+    .populate({ path: 'herd', select: '_id name' });
 
   const totalCount: number = await Harvest.countDocuments(queryObject);
   const totalPages: number = Math.ceil(totalCount / limit);
@@ -76,7 +77,11 @@ const getHarvestsByHerd = async (req: Request, res: Response) => {
 const getHarvest = async (req: Request, res: Response) => {
   const { id: harvestId } = req.params;
 
-  const harvest = await Harvest.findOne({ _id: harvestId });
+  const harvest = await Harvest.findOne({ _id: harvestId }).populate({
+    path: 'herd',
+    select: '_id name',
+  });
+
   if (!harvest) {
     throw new CustomError.NotFoundError(`No harvest with id ${harvestId}`);
   }
