@@ -32,7 +32,13 @@ const getAllProductPatchs = async (req: Request, res: Response) => {
   const productPatchs = await ProductPatch.find(queryObject)
     .skip(skip)
     .limit(limit)
-    .sort(sortList);
+    .sort(sortList)
+    .populate({
+      path: 'product',
+      select:
+        '_id name description price production_date expiration_date storage_method qrcode',
+    })
+    .populate({ path: 'processor', select: '_id name location date images' });
 
   const totalCount: number = await Harvest.countDocuments(queryObject);
   const totalPages: number = Math.ceil(totalCount / limit);
