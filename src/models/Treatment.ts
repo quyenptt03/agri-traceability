@@ -72,7 +72,7 @@ const treatmentSchema = new Schema<ITreatment>({
         'Miệng (trong miệng)',
         'Tiêm dưới da',
         'Bôi ngoài (trên da)',
-        'Other',
+        'Khác',
       ],
     },
   },

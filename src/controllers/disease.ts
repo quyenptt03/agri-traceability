@@ -35,12 +35,12 @@ const getAllDiseases = async (req: Request, res: Response) => {
 };
 
 const createDisease = async (req: Request, res: Response) => {
-  const { name, description, symptoms, prevent_measures } = req.body;
+  const { name, description, symptoms, preventive_measures } = req.body;
   const disease = await Disease.create({
     name,
     description,
     symptoms,
-    prevent_measures,
+    preventive_measures,
   });
   res.status(StatusCodes.CREATED).json({ disease });
 };
