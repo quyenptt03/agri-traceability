@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import { StatusCodes } from 'http-status-codes';
 import CustomError from '../errors';
-import { Disease, Herd, Medicine, Pest, Treatment } from '../models';
+import { Disease, Herd, Treatment } from '../models';
 
 const getAllTreatment = async (req: Request, res: Response) => {
   const { searchQuery, sort } = req.query;
@@ -167,9 +167,9 @@ const deleteTreatment = async (req: Request, res: Response) => {
 
 export {
   createHerdTreatment,
-  getAllTreatment,
-  getTreatmentByHerd,
-  getTreatment,
-  updateTreatment,
   deleteTreatment,
+  getAllTreatment,
+  getTreatment,
+  getTreatmentByHerd,
+  updateTreatment,
 };

@@ -40,7 +40,7 @@ const getAllProductPatchs = async (req: Request, res: Response) => {
     })
     .populate({ path: 'processor', select: '_id name location date images' });
 
-  const totalCount: number = await Harvest.countDocuments(queryObject);
+  const totalCount: number = await ProductPatch.countDocuments(queryObject);
   const totalPages: number = Math.ceil(totalCount / limit);
   res
     .status(StatusCodes.OK)
@@ -142,26 +142,48 @@ const getProductPatch = async (req: Request, res: Response) => {
 };
 
 const updateProductPatch = async (req: Request, res: Response) => {
-  const { id: harvestId } = req.params;
-  let herdExist;
+  const { id: productPatchId } = req.params;
+  const {
+    processor,
+    product,
+    quantity,
+    description,
+    production_date,
+    release_date,
+  } = req.body;
 
-  if (req.body.herd) {
-    herdExist = await Herd.findOne({ _id: req.body.herd });
-    if (!herdExist) {
-      throw new CustomError.BadRequestError(`No herd with id ${req.body.herd}`);
+  const productPatch = await ProductPatch.findOne({ _id: productPatchId });
+
+  if (!productPatch) {
+    throw new CustomError.NotFoundError(
+      `No product patch with id ${productPatchId}`
+    );
+  }
+
+  if (quantity) {
+    productPatch.quantity = quantity;
+  }
+
+  if (description) {
+    productPatch.description = description;
+  }
+
+  if (production_date) {
+    productPatch.production_date = production_date;
+  }
+
+  if (release_date) {
+    productPatch.release_date = release_date;
+  }
+
+  if (processor !== productPatch.processor.toString()) {
+    const newProcessor = await Processor.findOne({ _id: processor });
+    if (!newProcessor) {
+      throw new CustomError.BadRequestError('Processor does not exists');
     }
   }
 
-  const harvest = await Harvest.findOneAndUpdate({ _id: harvestId }, req.body, {
-    runValidators: true,
-    new: true,
-  });
-
-  if (!harvest) {
-    throw new CustomError.NotFoundError(`No harvest with id ${harvestId}`);
-  }
-
-  res.status(StatusCodes.OK).json({ harvest });
+  res.status(StatusCodes.OK).json({ productPatch });
 };
 
 const deleteProductPatch = async (req: Request, res: Response) => {

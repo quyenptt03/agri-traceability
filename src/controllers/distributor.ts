@@ -14,7 +14,7 @@ const getAllDistributors = async (req: Request, res: Response) => {
   }
 
   if (searchQuery) {
-    queryObject.name = { $regex: searchQuery, $options: 'i' };
+    queryObject.warehouse_name = { $regex: searchQuery, $options: 'i' };
   }
 
   const page: number = Math.abs(Number(req.query.page)) || 1;

@@ -29,7 +29,7 @@ const getAllProcessors = async (req: Request, res: Response) => {
       path: 'harvest',
     });
 
-  const totalCount: number = await Harvest.countDocuments(queryObject);
+  const totalCount: number = await Processor.countDocuments(queryObject);
   const totalPages: number = Math.ceil(totalCount / limit);
 
   res
