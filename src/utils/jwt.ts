@@ -13,10 +13,8 @@ const createJWT = ({ payload }: { payload: object }) => {
 const isTokenValid = (token: string) => {
   try {
     const payload = jwt.verify(token, process.env.JWT_SECRET);
-    // console.log({ payload });
     return payload;
   } catch (error) {
-    console.error(error.message);
     throw new CustomError.UnauthenticatedError('Authentication invalid');
   }
 };

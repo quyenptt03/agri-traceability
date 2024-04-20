@@ -176,12 +176,25 @@ const updateProductPatch = async (req: Request, res: Response) => {
     productPatch.release_date = release_date;
   }
 
-  if (processor !== productPatch.processor.toString()) {
+  if (processor && processor !== productPatch.processor.toString()) {
     const newProcessor = await Processor.findOne({ _id: processor });
     if (!newProcessor) {
       throw new CustomError.BadRequestError('Processor does not exists');
     }
+
+    productPatch.processor = newProcessor._id;
   }
+
+  if (product && product !== productPatch.product.toString()) {
+    const newProduct = await Product.findOne({ _id: product });
+    if (!newProduct) {
+      throw new CustomError.BadRequestError('Product doesn not exists');
+    }
+
+    productPatch.product = newProduct._id;
+  }
+
+  await productPatch.save();
 
   res.status(StatusCodes.OK).json({ productPatch });
 };

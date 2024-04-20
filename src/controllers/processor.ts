@@ -138,7 +138,7 @@ const updateProcessor = async (req: Request, res: Response) => {
     processor.date = date;
   }
 
-  if (harvest !== processor.harvest.toString()) {
+  if (harvest && harvest !== processor.harvest.toString()) {
     const newHarvest = await Harvest.findOne({ _id: harvest });
     if (!newHarvest) {
       throw new CustomError.BadRequestError(`No harvest with id ${harvest}`);

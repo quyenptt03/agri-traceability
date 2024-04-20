@@ -86,36 +86,87 @@ const getDistributor = async (req: Request, res: Response) => {
   res.status(StatusCodes.OK).json({ distributor });
 };
 
+// const updateDistributor = async (req: Request, res: Response) => {
+//   const { id: distributorId } = req.params;
+//   let productPatchExist;
+
+//   if (req.body.product_patch) {
+//     productPatchExist = await ProductPatch.findOne({
+//       _id: req.body.product_patch,
+//     });
+//     if (!productPatchExist) {
+//       throw new CustomError.BadRequestError(
+//         `No product patch with id ${req.body.product_patch}`
+//       );
+//     }
+//   }
+
+//   const distributor = await Distributor.findOneAndUpdate(
+//     { _id: distributorId },
+//     req.body,
+//     {
+//       runValidators: true,
+//       new: true,
+//     }
+//   );
+
+//   if (!distributor) {
+//     throw new CustomError.NotFoundError(
+//       `No distributor with id ${distributorId}`
+//     );
+//   }
+
+//   res.status(StatusCodes.OK).json({ distributor });
+// };
+
 const updateDistributor = async (req: Request, res: Response) => {
   const { id: distributorId } = req.params;
-  let productPatchExist;
+  const {
+    warehouse_name,
+    warehouse_address,
+    received_date,
+    delivery_date,
+    stores,
+    product_patch,
+  } = req.body;
 
-  if (req.body.product_patch) {
-    productPatchExist = await ProductPatch.findOne({
-      _id: req.body.product_patch,
-    });
-    if (!productPatchExist) {
-      throw new CustomError.BadRequestError(
-        `No product patch with id ${req.body.product_patch}`
-      );
-    }
-  }
-
-  const distributor = await Distributor.findOneAndUpdate(
-    { _id: distributorId },
-    req.body,
-    {
-      runValidators: true,
-      new: true,
-    }
-  );
-
+  const distributor = await Distributor.findOne({ _id: distributorId });
   if (!distributor) {
     throw new CustomError.NotFoundError(
       `No distributor with id ${distributorId}`
     );
   }
 
+  if (warehouse_name) {
+    distributor.warehouse_name = warehouse_name;
+  }
+
+  if (warehouse_address) {
+    distributor.warehouse_address = warehouse_address;
+  }
+
+  if (received_date) {
+    distributor.received_date = received_date;
+  }
+
+  if (delivery_date) {
+    distributor.delivery_date = delivery_date;
+  }
+
+  if (stores) {
+    distributor.stores = stores;
+  }
+
+  if (product_patch && product_patch !== distributor.product_patch.toString()) {
+    const newProductPatch = await ProductPatch.findOne({ _id: product_patch });
+    if (!newProductPatch) {
+      throw new CustomError.BadRequestError('Product patch does not exists.');
+    }
+
+    distributor.product_patch = product_patch;
+  }
+
+  await distributor.save();
   res.status(StatusCodes.OK).json({ distributor });
 };
 
