@@ -5,6 +5,7 @@ import farmRouter from './farm';
 import herdRouter from './herd';
 import animalRouter from './animal';
 import productRouter from './product';
+import productInfoRouter from './product_info';
 import cultivationLogRouter from './cultivation-log';
 import activityRouter from './activity';
 import pestCategoryRouter from './pest-category';
@@ -26,6 +27,7 @@ export {
   herdRouter,
   animalRouter,
   productRouter,
+  productInfoRouter,
   cultivationLogRouter,
   activityRouter,
   pestCategoryRouter,

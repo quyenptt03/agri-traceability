@@ -11,6 +11,7 @@ import Pest from './Pest';
 import PestCategory from './PestCategory';
 import Treatment from './Treatment';
 import Product from './Product';
+import ProductInfo from './ProductInfo';
 import Harvest from './Harvest';
 import Processor from './Processor';
 import TraceabilityInfo from './TraceabilityInfo';
@@ -31,6 +32,7 @@ export {
   PestCategory,
   Treatment,
   Product,
+  ProductInfo,
   Harvest,
   Processor,
   TraceabilityInfo,

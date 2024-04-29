@@ -12,6 +12,13 @@ import {
   Treatment,
 } from '../models';
 
+const getAllTraceabilityInfos = async (req: Request, res: Response) => {
+  const traceabilityInfos = await TraceabilityInfo.find({});
+
+  res
+    .status(StatusCodes.OK)
+    .json({ traceabilityInfos, count: traceabilityInfos.length });
+};
 const createTraceabilityInfo = async (req: Request, res: Response) => {
   const traceabilityInfo = await TraceabilityInfo.create(req.body);
 
@@ -25,7 +32,12 @@ const getTraceabilityInfo = async (req: Request, res: Response) => {
   if (!info) {
     throw new CustomError.NotFoundError('Not found');
   }
-  const product = await Product.findOne({ _id: info.product });
+  const product = await Processor.findOne({ _id: info.product })
+    .populate('product_info', 'name description storage_method')
+    .select(
+      'price currency_unit net_weight unit dte production_date images qr_code'
+    );
+
   const herd = await Herd.findOne({
     _id: info.herd,
   })
@@ -50,14 +62,7 @@ const getTraceabilityInfo = async (req: Request, res: Response) => {
       $lt: harvest.date,
     },
   });
-  const processor = await Processor.findOne({ _id: info.processor }).select(
-    '_id name location date images'
-  );
-  const distributor = await Distributor.findOne({
-    _id: info.distributor,
-  }).select(
-    '_id warehouse_name warehouse_address images received_date delivery_date stores'
-  );
+
   const treatments = await Treatment.find({
     herd,
     date: {
@@ -70,65 +75,54 @@ const getTraceabilityInfo = async (req: Request, res: Response) => {
     herd,
     cultivationLogs,
     harvest,
-    processor,
-    distributor,
     treatments,
   });
 };
 
-const updateTraceabilityInfo = async (req: Request, res: Response) => {
-  const { id: infoId } = req.params;
+// const updateTraceabilityInfo = async (req: Request, res: Response) => {
+//   const { id: infoId } = req.params;
 
-  const { herd, product, harvest, processor, distributor } = req.body;
+//   const { herd, product, harvest, processor, distributor } = req.body;
 
-  if (herd) {
-    const herdExist = await Herd.findOne({ _id: herd });
-    if (!herdExist) {
-      throw new CustomError.BadRequestError(`No herd with id ${herd}`);
-    }
-  }
+//   if (herd) {
+//     const herdExist = await Herd.findOne({ _id: herd });
+//     if (!herdExist) {
+//       throw new CustomError.BadRequestError(`No herd with id ${herd}`);
+//     }
+//   }
 
-  if (product) {
-    const productExist = await Product.findOne({ _id: product });
-    if (!productExist) {
-      throw new CustomError.BadRequestError(`No product with id ${product}`);
-    }
-  }
+//   if (product) {
+//     const productExist = await Product.findOne({ _id: product });
+//     if (!productExist) {
+//       throw new CustomError.BadRequestError(`No product with id ${product}`);
+//     }
+//   }
 
-  if (harvest) {
-    const harvestExist = await Harvest.findOne({ _id: harvest });
-    if (!harvestExist) {
-      throw new CustomError.BadRequestError(`No harvest with id ${harvest}`);
-    }
-  }
+//   if (harvest) {
+//     const harvestExist = await Harvest.findOne({ _id: harvest });
+//     if (!harvestExist) {
+//       throw new CustomError.BadRequestError(`No harvest with id ${harvest}`);
+//     }
+//   }
 
-  if (processor) {
-    const processorExist = await Processor.findOne({ _id: processor });
-    if (!processorExist) {
-      throw new CustomError.BadRequestError(
-        `No processor with id ${processor}`
-      );
-    }
-  }
+//   if (processor) {
+//     const processorExist = await Processor.findOne({ _id: processor });
+//     if (!processorExist) {
+//       throw new CustomError.BadRequestError(
+//         `No processor with id ${processor}`
+//       );
+//     }
+//   }
 
-  if (distributor) {
-    const distributorExist = await Distributor.findOne({ _id: distributor });
-    if (!distributorExist) {
-      throw new CustomError.BadRequestError(
-        `No distributor with id ${distributor}`
-      );
-    }
-  }
+//   const info = await TraceabilityInfo.findOneAndUpdate(req.body);
+//   if (!info) {
+//     throw new CustomError.NotFoundError(
+//       `No traceability info with id ${infoId}`
+//     );
+//   }
 
-  const info = await TraceabilityInfo.findOneAndUpdate(req.body);
-  if (!info) {
-    throw new CustomError.NotFoundError(
-      `No traceability info with id ${infoId}`
-    );
-  }
-
-  res.status(StatusCodes.OK).json({ info });
-};
+//   res.status(StatusCodes.OK).json({ info });
+// };
 
 const deleteTraceabilityInfo = async (req: Request, res: Response) => {
   const { id: infoId } = req.params;
@@ -174,9 +168,10 @@ const deleteTraceabilityInfo = async (req: Request, res: Response) => {
 // };
 
 export {
+  getAllTraceabilityInfos,
   createTraceabilityInfo,
   deleteTraceabilityInfo,
   getTraceabilityInfo,
   // scanQrcode,
-  updateTraceabilityInfo,
+  // updateTraceabilityInfo,
 };

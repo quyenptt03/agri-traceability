@@ -1,8 +1,15 @@
 import { Request, Response } from 'express';
 import { StatusCodes } from 'http-status-codes';
 import CustomError from '../errors';
-import { Harvest, Processor } from '../models';
+import {
+  Harvest,
+  Herd,
+  Processor,
+  ProductInfo,
+  TraceabilityInfo,
+} from '../models';
 import { remove, upload } from './cloudinary';
+import generateQR from '../utils/generateQR';
 
 const getAllProcessors = async (req: Request, res: Response) => {
   const { searchQuery, sort } = req.query;
@@ -36,9 +43,35 @@ const getAllProcessors = async (req: Request, res: Response) => {
     .status(StatusCodes.OK)
     .json({ processor, count: processor.length, page, totalPages });
 };
+/**
+ * name: string;
+  price: number;
+  net_weight: number;
+  unit: string;
+  dte: string;
+  production_date: Date;
+  description: string;
+  harvest: Types.ObjectId;
+  location: string;
+  quantity: number;
+  product_info: Types.ObjectId;
+  images: object[];
+  qr_code: string;
+ */
 
 const createProcessor = async (req: Request, res: Response) => {
-  const { name, location, description, date } = req.body;
+  const {
+    price,
+    currency_unit,
+    net_weight,
+    unit,
+    dte,
+    production_date,
+    description,
+    location,
+    quantity,
+  } = req.body;
+
   if (!req.body.harvest) {
     throw new CustomError.BadRequestError("Please provide harvest's id");
   }
@@ -50,31 +83,70 @@ const createProcessor = async (req: Request, res: Response) => {
     );
   }
 
-  if (!name || !location) {
+  if (!req.body.product_info) {
+    throw new CustomError.BadRequestError('Please provide product info');
+  }
+
+  const product_info = await ProductInfo.findOne({
+    _id: req.body.product_info,
+  });
+  if (!product_info) {
     throw new CustomError.BadRequestError(
-      'Please provide name and location of processor'
+      `No product info with id ${req.body.product_info}`
     );
+  }
+
+  if (!price || !net_weight || !unit || !dte || !location || !quantity) {
+    throw new CustomError.BadRequestError('Please provide all the infomation');
   }
 
   const processor = await Processor.create({
     harvest: harvest._id,
-    name,
-    location,
+    product_info: product_info._id,
+    price,
+    currency_unit,
+    net_weight,
+    unit,
+    dte,
+    production_date,
     description,
-    date,
+    location,
+    quantity,
   });
 
   harvest.isProcessed = true;
   await harvest.save();
+
+  const herd = await Herd.findOne({ _id: harvest.herd });
+  if (!herd) {
+    throw new CustomError.BadRequestError(
+      'The infomation of herd does not exists'
+    );
+  }
+
+  const traceabilityInfo = await TraceabilityInfo.create({
+    product: processor,
+    herd: herd._id,
+    harvest: harvest._id,
+  });
+
+  const qrcode = await generateQR(traceabilityInfo._id.valueOf().toString());
+  processor.info = traceabilityInfo._id;
+  processor.qr_code = qrcode;
+  await processor.save();
 
   res.status(StatusCodes.CREATED).json({ processor });
 };
 
 const getProcessor = async (req: Request, res: Response) => {
   const { id: processorId } = req.params;
-  const processor = await Processor.findOne({ _id: processorId }).populate({
-    path: 'harvest',
-  });
+  const processor = await Processor.findOne({ _id: processorId })
+    .populate({
+      path: 'harvest',
+    })
+    .populate({
+      path: 'product_info',
+    });
 
   if (!processorId) {
     throw new CustomError.NotFoundError(`No processor with id ${processorId}`);
@@ -83,38 +155,21 @@ const getProcessor = async (req: Request, res: Response) => {
   res.status(StatusCodes.OK).json({ processor });
 };
 
-// const updateProcessor = async (req: Request, res: Response) => {
-//   const { id: processorId } = req.params;
-//   let harvestExist;
-
-//   if (req.body.harvest) {
-//     harvestExist = await Harvest.findOne({ _id: req.body.harvest });
-//     if (!harvestExist) {
-//       throw new CustomError.BadRequestError(
-//         `No harvest with id ${req.body.harvest}`
-//       );
-//     }
-//   }
-
-//   const processor = await Processor.findOneAndUpdate(
-//     { _id: processorId },
-//     req.body,
-//     {
-//       runValidators: true,
-//       new: true,
-//     }
-//   );
-
-//   if (!processor) {
-//     throw new CustomError.NotFoundError(`No processor with id ${processorId}`);
-//   }
-
-//   res.status(StatusCodes.OK).json({ processor });
-// };
-
 const updateProcessor = async (req: Request, res: Response) => {
   const { id: processorId } = req.params;
-  const { name, location, description, date, harvest } = req.body;
+  const {
+    price,
+    currency_unit,
+    net_weight,
+    unit,
+    dte,
+    production_date,
+    description,
+    location,
+    quantity,
+    harvest,
+    product_info,
+  } = req.body;
 
   const processor = await Processor.findOne({ _id: processorId });
 
@@ -122,20 +177,40 @@ const updateProcessor = async (req: Request, res: Response) => {
     throw new CustomError.NotFoundError(`No processor with id ${processor}`);
   }
 
-  if (name) {
-    processor.name = name;
+  if (price) {
+    processor.price = price;
   }
 
-  if (location) {
-    processor.location = location;
+  if (currency_unit) {
+    processor.currency_unit = currency_unit;
+  }
+
+  if (net_weight) {
+    processor.net_weight = net_weight;
+  }
+
+  if (unit) {
+    processor.unit = unit;
+  }
+
+  if (dte) {
+    processor.dte = dte;
+  }
+
+  if (production_date) {
+    processor.production_date = production_date;
   }
 
   if (description) {
     processor.description = description;
   }
 
-  if (date) {
-    processor.date = date;
+  if (location) {
+    processor.location = location;
+  }
+
+  if (quantity) {
+    processor.quantity = quantity;
   }
 
   if (harvest && harvest !== processor.harvest.toString()) {
@@ -155,6 +230,17 @@ const updateProcessor = async (req: Request, res: Response) => {
 
     newHarvest.isProcessed = true;
     await newHarvest.save();
+  }
+
+  if (product_info && product_info !== processor.product_info.toString()) {
+    const newProductInfo = await ProductInfo.findOne({ _id: harvest });
+    if (!newProductInfo) {
+      throw new CustomError.BadRequestError(
+        `No product info with id ${product_info}`
+      );
+    }
+
+    processor.product_info = newProductInfo._id;
   }
 
   await processor.save();

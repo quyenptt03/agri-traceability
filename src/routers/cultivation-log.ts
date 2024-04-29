@@ -14,7 +14,7 @@ import {
   authorizePermissions,
 } from '../middlewares/authentication';
 import express from 'express';
-import uploadCloud from '../middlewares/uploadCloud';
+import uploadCloud from '../middlewares/upload-cloud';
 
 const router = express.Router();
 

@@ -9,7 +9,7 @@ import {
   uploadImages,
 } from '../controllers/herd';
 import { authenticateUser } from '../middlewares/authentication';
-import uploadCloud from '../middlewares/uploadCloud';
+import uploadCloud from '../middlewares/upload-cloud';
 
 const router = express.Router();
 

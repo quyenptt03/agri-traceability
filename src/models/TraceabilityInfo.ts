@@ -5,14 +5,13 @@ interface IInfo {
   herd: Types.ObjectId;
   harvest: Types.ObjectId;
   processor: Types.ObjectId;
-  distributor: Types.ObjectId;
 }
 
 const infoSchema = new Schema<IInfo>(
   {
     product: {
       type: Schema.Types.ObjectId,
-      ref: 'Product',
+      ref: 'Processor',
       required: true,
     },
     herd: {
@@ -23,14 +22,6 @@ const infoSchema = new Schema<IInfo>(
     harvest: {
       type: Schema.Types.ObjectId,
       ref: 'Harvest',
-    },
-    processor: {
-      type: Schema.Types.ObjectId,
-      ref: 'Processor',
-    },
-    distributor: {
-      type: Schema.Types.ObjectId,
-      ref: 'Distributor',
     },
   },
 

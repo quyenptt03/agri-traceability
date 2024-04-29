@@ -67,7 +67,6 @@ const createDistributor = async (req: Request, res: Response) => {
     received_date,
   });
   const info = await TraceabilityInfo.findOne({ _id: productPatch.info });
-  info.distributor = distributor._id;
   await info.save();
 
   res.status(StatusCodes.CREATED).json({ distributor });

@@ -23,6 +23,7 @@ import {
   herdRouter,
   animalRouter,
   productRouter,
+  productInfoRouter,
   // pestCategoryRouter,
   // pestRouter,
   diseaseRouter,
@@ -64,6 +65,7 @@ app.use('/api/v1/farm', farmRouter);
 app.use('/api/v1/herds', herdRouter);
 app.use('/api/v1/animals', animalRouter);
 app.use('/api/v1/products', productRouter);
+app.use('/api/v1/product-infos', productInfoRouter);
 app.use('/api/v1/cultivation-logs', cultivationLogRouter);
 app.use('/api/v1/activities', activityRouter);
 // app.use('/api/v1/pest-categories', pestCategoryRouter);
