@@ -43,21 +43,16 @@ const getAllProcessors = async (req: Request, res: Response) => {
     .status(StatusCodes.OK)
     .json({ processor, count: processor.length, page, totalPages });
 };
-/**
- * name: string;
-  price: number;
-  net_weight: number;
-  unit: string;
-  dte: string;
-  production_date: Date;
-  description: string;
-  harvest: Types.ObjectId;
-  location: string;
-  quantity: number;
-  product_info: Types.ObjectId;
-  images: object[];
-  qr_code: string;
- */
+
+const getAllProducts = async (req: Request, res: Response) => {
+  const products = await Processor.find({})
+    .populate('product_info')
+    .select(
+      'price currency_unit net_weight unit dte production_date images qr_code'
+    );
+
+  res.status(StatusCodes.OK).json({ products, count: products.length });
+};
 
 const createProcessor = async (req: Request, res: Response) => {
   const {
@@ -288,6 +283,7 @@ const uploadImages = async (req: Request, res: Response) => {
 };
 
 export {
+  getAllProducts,
   createProcessor,
   deleteProcessor,
   getAllProcessors,

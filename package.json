@@ -8,16 +8,22 @@
   },
   "scripts": {
     "start": "npm start",
-    "dev": "nodemon start"
+    "dev": "nodemon start",
+    "test": "jest"
   },
   "keywords": [],
   "author": "Quyen Phan (quyenpt03)",
   "license": "ISC",
   "devDependencies": {
+    "@babel/core": "^7.24.5",
+    "@babel/preset-env": "^7.24.5",
+    "@babel/preset-typescript": "^7.24.1",
+    "@jest/globals": "^29.7.0",
     "@types/bcrypt": "^5.0.2",
     "@types/cookie-parser": "^1.4.6",
     "@types/cors": "^2.8.17",
     "@types/express": "^4.17.17",
+    "@types/jest": "^29.5.12",
     "@types/jsonwebtoken": "^9.0.5",
     "@types/morgan": "^1.9.9",
     "@types/multer": "^1.4.7",
@@ -25,7 +31,11 @@
     "@types/swagger-jsdoc": "^6.0.3",
     "@types/swagger-ui-express": "^4.1.6",
     "@types/validator": "^13.11.7",
+    "babel-jest": "^29.7.0",
+    "jest": "^29.7.0",
     "nodemon": "^3.0.1",
+    "supertest": "^7.0.0",
+    "ts-jest": "^29.1.2",
     "ts-node": "^10.9.1",
     "typescript": "^5.1.6"
   },
