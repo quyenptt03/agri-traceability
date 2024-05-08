@@ -18,7 +18,7 @@ beforeAll(async () => {
     email: 'admin@gmail.com',
     password: '1230123',
   });
-  jwtToken = response.headers['set-cookie'][0].split('=')[1];
+  jwtToken = response.body.token;
 });
 
 describe('GET /api/v1/product-infos', () => {
@@ -36,7 +36,7 @@ describe('POST /api/v1/product-infos', () => {
     test('should create a new product info', async () => {
       const res = await request(app)
         .post('/api/v1/product-infos')
-        .set('Cookie', `token=${jwtToken}`)
+        .set('Authorization', 'Bearer ' + jwtToken)
         .send(newProductInfo);
 
       expect(res.statusCode).toBe(201);
@@ -57,7 +57,7 @@ describe('POST /api/v1/product-infos', () => {
     test('should throw error when not provide all values', async () => {
       const res = await request(app)
         .post('/api/v1/product-infos')
-        .set('Cookie', `token=${jwtToken}`)
+        .set('Authorization', 'Bearer ' + jwtToken)
         .send({ name: 'test' });
 
       expect(res.statusCode).toBe(400);
@@ -70,7 +70,7 @@ describe('GET /api/v1/product-infos/:id', () => {
     test('should get product info by id and 200 status code', async () => {
       const res = await request(app)
         .get(`/api/v1/product-infos/${productInfoCreated._id}`)
-        .set('Cookie', `token=${jwtToken}`);
+        .set('Authorization', 'Bearer ' + jwtToken);
 
       expect(res.statusCode).toBe(200);
       expect(res.body.productInfo).toMatchObject(productInfoCreated);
@@ -90,7 +90,7 @@ describe('PATCH /api/v1/product-infos/:id', () => {
     test('should respond with a status 200', async () => {
       const res = await request(app)
         .patch(`/api/v1/product-infos/${productInfoCreated._id}`)
-        .set('Cookie', `token=${jwtToken}`)
+        .set('Authorization', 'Bearer ' + jwtToken)
         .send({ name: 'new test' });
 
       expect(res.statusCode).toBe(200);
@@ -99,7 +99,7 @@ describe('PATCH /api/v1/product-infos/:id', () => {
     test('should throw not found error 404 when id is not exists', async () => {
       const res = await request(app)
         .patch('/api/v1/product-infos/662q19defa65f62953135931')
-        .set('Cookie', `token=${jwtToken}`)
+        .set('Authorization', 'Bearer ' + jwtToken)
         .send({ name: 'new test' });
       expect(res.statusCode).toBe(404);
     });
@@ -118,7 +118,7 @@ describe('DELETE /api/v1/product-infos/:id', () => {
     test('should respond with a status 200', async () => {
       const res = await request(app)
         .delete(`/api/v1/product-infos/${productInfoCreated._id}`)
-        .set('Cookie', `token=${jwtToken}`);
+        .set('Authorization', 'Bearer ' + jwtToken);
 
       expect(res.statusCode).toBe(200);
     });
@@ -126,7 +126,7 @@ describe('DELETE /api/v1/product-infos/:id', () => {
     test('should throw not found error 404 when id is not exists', async () => {
       const res = await request(app)
         .delete('/api/v1/product-infos/662q19defa65f62953135931')
-        .set('Cookie', `token=${jwtToken}`);
+        .set('Authorization', 'Bearer ' + jwtToken);
       expect(res.statusCode).toBe(404);
     });
 
