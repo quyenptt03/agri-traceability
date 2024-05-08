@@ -33,6 +33,7 @@ const attachCookiesToResponse = ({
     secure: process.env.NODE_ENV === 'production',
     signed: true,
   });
+  return token;
 };
 
 export { createJWT, isTokenValid, attachCookiesToResponse };

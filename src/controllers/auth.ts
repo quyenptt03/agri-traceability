@@ -23,8 +23,8 @@ const register = async (req: Request, res: Response) => {
     role,
   });
   const userToken = createUserToken(user);
-  attachCookiesToResponse({ res, user: userToken });
-  res.status(StatusCodes.CREATED).json({ user: userToken });
+  const token = attachCookiesToResponse({ res, user: userToken });
+  res.status(StatusCodes.CREATED).json({ user: userToken, token });
 };
 
 const login = async (req: Request, res: Response) => {
@@ -44,9 +44,9 @@ const login = async (req: Request, res: Response) => {
   }
 
   const userToken = createUserToken(user);
-  attachCookiesToResponse({ res, user: userToken });
+  const token = attachCookiesToResponse({ res, user: userToken });
 
-  res.status(StatusCodes.OK).json({ user: userToken });
+  res.status(StatusCodes.OK).json({ user: userToken, token });
 };
 
 const logout = async (req: Request, res: Response) => {
