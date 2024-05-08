@@ -9,7 +9,16 @@
   "scripts": {
     "start": "npm start",
     "dev": "nodemon start",
-    "test": "jest"
+    "test": "jest --watchAll"
+  },
+  "jest": {
+    "preset": "ts-jest",
+    "testEnvironment": "node",
+    "testMatch": [
+      "**/**/*.test.ts"
+    ],
+    "verbose": true,
+    "forceExit": true
   },
   "keywords": [],
   "author": "Quyen Phan (quyenpt03)",
