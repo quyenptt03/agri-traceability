@@ -35,7 +35,7 @@ const getAllHarvests = async (req: Request, res: Response) => {
 };
 
 const createHarvest = async (req: Request, res: Response) => {
-  const { name, quantity, unit, date, description, grade } = req.body;
+  const { name, quantity, unit, date, description, grade, status } = req.body;
   if (!req.body.herd) {
     throw new CustomError.BadRequestError('Please provide herd id');
   }
@@ -44,6 +44,12 @@ const createHarvest = async (req: Request, res: Response) => {
   if (!herd) {
     throw new CustomError.BadRequestError('Herd does not exists');
   }
+
+  if (herd.status == 'Thu hoạch xong') {
+    throw new CustomError.BadRequestError('This herd has been harvested');
+  }
+
+  herd.status = status;
 
   const harvest = await Harvest.create({
     herd: herd._id,
@@ -54,6 +60,8 @@ const createHarvest = async (req: Request, res: Response) => {
     description,
     grade,
   });
+
+  await herd.save();
 
   res.status(StatusCodes.CREATED).json({ harvest });
 };
@@ -91,12 +99,14 @@ const getHarvest = async (req: Request, res: Response) => {
 
 const updateHarvest = async (req: Request, res: Response) => {
   const { id: harvestId } = req.params;
-  let herdExist;
-
   if (req.body.herd) {
-    herdExist = await Herd.findOne({ _id: req.body.herd });
+    const herdExist = await Herd.findOne({ _id: req.body.herd });
     if (!herdExist) {
       throw new CustomError.BadRequestError(`No herd with id ${req.body.herd}`);
+    }
+
+    if (herdExist.status == 'Thu hoạch xong') {
+      throw new CustomError.BadRequestError('This herd has been harvested');
     }
   }
 
@@ -104,6 +114,20 @@ const updateHarvest = async (req: Request, res: Response) => {
     runValidators: true,
     new: true,
   });
+
+  if (req.body.status) {
+    const herd = await Herd.findOneAndUpdate(
+      { id: harvest.herd },
+      { status },
+      {
+        runValidators: true,
+        new: true,
+      }
+    );
+    if (herd) {
+      throw new CustomError.BadRequestError('Herd does not exists');
+    }
+  }
 
   if (!harvest) {
     throw new CustomError.NotFoundError(`No harvest with id ${harvestId}`);

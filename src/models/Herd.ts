@@ -12,6 +12,7 @@ interface IHerd {
   end_date: Date;
   // is_harvested: boolean;
   records: object[];
+  status: string;
   user: Types.ObjectId;
 }
 
@@ -61,16 +62,19 @@ const HerdSchema = new Schema<IHerd>(
     end_date: {
       type: Date,
     },
-    // is_harvested: {
-    //   type: Boolean,
-    //   default: false,
-    // },
     records: [
       {
         type: Schema.Types.ObjectId,
         ref: 'Animal',
       },
     ],
+    status: {
+      type: String,
+      enum: {
+        values: ['Chưa thu hoạch', 'Đang thu hoạch', 'Thu hoạch xong'],
+      },
+      default: 'Chưa thu hoạch',
+    },
     user: {
       type: Schema.Types.ObjectId,
       ref: 'User',

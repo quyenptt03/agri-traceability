@@ -146,6 +146,7 @@ const updateHerd = async (req: Request, res: Response) => {
     farm,
     start_date,
     end_date,
+    status,
   } = req.body;
   let categoryExist, farmExist;
   const herd = await Herd.findOne({ _id: herdId });
@@ -167,6 +168,9 @@ const updateHerd = async (req: Request, res: Response) => {
   }
   if (end_date) {
     herd.end_date = end_date;
+  }
+  if (status) {
+    herd.status = status;
   }
   if (category) {
     categoryExist = await Category.findOne({ _id: category });
