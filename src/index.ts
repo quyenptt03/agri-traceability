@@ -12,7 +12,8 @@ import bodyParser from 'body-parser';
 import cookieParser from 'cookie-parser';
 
 //database
-import connectDB from './db/connect';
+// import connectDB from './db/connect';
+import ServerGlobal from './db/server-global';
 //routes
 import {
   authRouter,
@@ -82,14 +83,22 @@ app.use('/api/v1/qrcode', qrCodeRouter);
 app.use(errorHandlerMiddleware);
 
 const start = async () => {
+  const serverGlobal = ServerGlobal.getInstance();
+  // const server2 = ServerGlobal.getInstance();
+  // console.log('compare::', serverGlobal === server2);
   try {
-    await connectDB(process.env.DB_URI);
+    await serverGlobal.connectDB(process.env.DB_URI);
     app.listen(port, () => {
-      console.log(`Server is listening at port ${port}`);
+      serverGlobal.logger.info(`Server is running on port ${port}`);
     });
-    swaggerDocs(app, 5000);
+
+    // await connectDB(process.env.DB_URI);
+    // app.listen(port, () => {
+    //   console.log(`Server is listening at port ${port}`);
+    // });
+    // swaggerDocs(app, 5000);
   } catch (error) {
-    console.log(error);
+    serverGlobal.logger.error(`Failed to start server: ${error}`);
   }
 };
 

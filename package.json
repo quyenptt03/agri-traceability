@@ -7,7 +7,7 @@
     "module": "CommonJS"
   },
   "scripts": {
-    "start": "npm start",
+    "start": "ts-node src/index.ts",
     "dev": "nodemon start",
     "test": "jest --watchAll"
   },
@@ -60,7 +60,7 @@
     "http-status-codes": "^2.2.0",
     "joi": "^17.10.1",
     "jsonwebtoken": "^9.0.2",
-    "mongoose": "^7.4.3",
+    "mongoose": "^7.6.11",
     "morgan": "^1.10.0",
     "multer": "^1.4.5-lts.1",
     "multer-storage-cloudinary": "^4.0.0",
@@ -70,6 +70,7 @@
     "slugify": "^1.6.6",
     "swagger-jsdoc": "^6.2.8",
     "swagger-ui-express": "^5.0.0",
-    "validator": "^13.11.0"
+    "validator": "^13.11.0",
+    "winston": "^3.13.0"
   }
 }
