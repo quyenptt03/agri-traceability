@@ -18,27 +18,18 @@ const router = express.Router();
 router
   .route('/')
   .get(getAllMedicine)
-  .post(
-    [authenticateUser, authorizePermissions('admin', 'manager')],
-    createMedicine
-  );
+  .post([authenticateUser, authorizePermissions('admin')], createMedicine);
 router
   .route('/upload/:id')
   .patch(
-    [authenticateUser, authorizePermissions('admin', 'manager')],
+    [authenticateUser, authorizePermissions('admin')],
     uploadCloud.array('images', 10),
     uploadImages
   );
 router
   .route('/:id')
   .get(authenticateUser, getMedicine)
-  .patch(
-    [authenticateUser, authorizePermissions('admin', 'manager')],
-    updateMedicine
-  )
-  .delete(
-    [authenticateUser, authorizePermissions('admin', 'manager')],
-    deleteMedicine
-  );
+  .patch([authenticateUser, authorizePermissions('admin')], updateMedicine)
+  .delete([authenticateUser, authorizePermissions('admin')], deleteMedicine);
 
 export default router;
