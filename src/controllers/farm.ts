@@ -94,7 +94,7 @@ const deleteFarm = async (req: Request, res: Response) => {
 
 const uploadImages = async (req: Request, res: Response) => {
   if (!req.files) {
-    throw new CustomError.BadRequestError('No file uploaded');
+    throw new CustomError.BadRequestError('No files uploaded');
   }
   const { id: farmId } = req.params;
   const images = req.files as Express.Multer.File[];

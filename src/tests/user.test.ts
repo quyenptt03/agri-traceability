@@ -131,7 +131,7 @@ describe('PATCH /api/v1/update-user', () => {
       const res = await request(app)
         .patch(`/api/v1/users/update-user`)
         .set('Authorization', 'Bearer ' + jwtToken)
-        .send({ first_name: 'new name' });
+        .send({ adress: 'Da lat' });
 
       expect(res.statusCode).toBe(200);
     });
@@ -139,7 +139,7 @@ describe('PATCH /api/v1/update-user', () => {
     test('should throw error status 401 when not login', async () => {
       const res = await request(app)
         .patch(`/api/v1/users/update-user`)
-        .send({ first_name: 'new name' });
+        .send({ adress: 'Da lat' });
       expect(res.statusCode).toBe(401);
     });
   });

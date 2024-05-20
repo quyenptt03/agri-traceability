@@ -9,7 +9,6 @@ class ServerGlobal {
   private static _instance: ServerGlobal;
 
   private constructor() {
-    console.log('Creating an instance of ServerGlobal');
     this._logger = winston.createLogger({
       level: 'info',
       format: winston.format.combine(

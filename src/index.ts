@@ -40,6 +40,7 @@ import {
 
 //middlewares
 import errorHandlerMiddleware from './middlewares/error-handler';
+import http from 'http';
 
 //config dotenv
 config();
@@ -62,7 +63,7 @@ app.get('/', (req, res) => {
 app.use('/api/v1/auth', authRouter);
 app.use('/api/v1/users', userRouter);
 app.use('/api/v1/categories', categoryRouter);
-app.use('/api/v1/farm', farmRouter);
+app.use('/api/v1/farms', farmRouter);
 app.use('/api/v1/herds', herdRouter);
 app.use('/api/v1/animals', animalRouter);
 app.use('/api/v1/products', productRouter);
@@ -88,9 +89,9 @@ const start = async () => {
   // console.log('compare::', serverGlobal === server2);
   try {
     await serverGlobal.connectDB(process.env.DB_URI);
-    app.listen(port, () => {
-      serverGlobal.logger.info(`Server is running on port ${port}`);
-    });
+    app.set('port', port);
+    const server = http.createServer(app);
+    serverGlobal.logger.info(`Server is running on port ${port}`);
 
     // await connectDB(process.env.DB_URI);
     // app.listen(port, () => {
