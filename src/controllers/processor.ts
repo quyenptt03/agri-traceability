@@ -28,7 +28,7 @@ const getAllProcessors = async (req: Request, res: Response) => {
   const limit: number = Math.abs(Number(req.query.limit)) || 10;
   const skip: number = (page - 1) * limit;
 
-  const processor = await Processor.find(queryObject)
+  const processors = await Processor.find(queryObject)
     .skip(skip)
     .limit(limit)
     .sort(sortList)
@@ -41,7 +41,7 @@ const getAllProcessors = async (req: Request, res: Response) => {
 
   res
     .status(StatusCodes.OK)
-    .json({ processor, count: processor.length, page, totalPages });
+    .json({ processors, count: processors.length, page, totalPages });
 };
 
 const getAllProducts = async (req: Request, res: Response) => {
