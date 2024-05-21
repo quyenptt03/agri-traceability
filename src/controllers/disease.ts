@@ -75,7 +75,6 @@ const deleteDisease = async (req: Request, res: Response) => {
     throw new CustomError.NotFoundError(`No disease with id ${diseaseId}`);
   }
   await disease.deleteOne();
-  console.log(disease.images);
   if (disease.images.length !== 0) {
     remove(disease.images);
   }
