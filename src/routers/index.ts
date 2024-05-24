@@ -18,6 +18,7 @@ import processorRouter from './processor';
 import productPatchRouter from './product-patch';
 import distributorRouter from './distributor';
 import qrCodeRouter from './qrcode';
+import noticationRouter from './notification';
 
 export {
   authRouter,
@@ -40,4 +41,5 @@ export {
   productPatchRouter,
   distributorRouter,
   qrCodeRouter,
+  noticationRouter,
 };

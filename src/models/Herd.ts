@@ -1,4 +1,6 @@
 import { Schema, model, Types } from 'mongoose';
+import { Observer } from 'services/harvest-service';
+import { Notification, User } from './';
 
 interface IHerd {
   name: string;
@@ -10,10 +12,14 @@ interface IHerd {
   member_count: number;
   start_date: Date;
   end_date: Date;
-  // is_harvested: boolean;
   records: object[];
   status: string;
   user: Types.ObjectId;
+  notified: boolean;
+  registerObserver(observer: Observer): void;
+  removeObserver(observer: Observer): void;
+  notifyObservers(): void;
+  checkHarvestStatus(): void;
 }
 
 const HerdSchema = new Schema<IHerd>(
@@ -79,9 +85,59 @@ const HerdSchema = new Schema<IHerd>(
       type: Schema.Types.ObjectId,
       ref: 'User',
     },
+    notified: {
+      type: Boolean,
+      default: false,
+    },
   },
 
   { timestamps: true }
 );
+
+HerdSchema.methods.registerObserver = function (observer: Observer): void {
+  if (!this.observers) {
+    this.observers = [];
+  }
+  this.observers.push(observer);
+};
+
+HerdSchema.methods.removeObserver = function (observer: Observer): void {
+  this.observers = this.observers.filter((o: Observer) => o !== observer);
+};
+
+HerdSchema.methods.notifyObservers = async function (): Promise<void> {
+  const message = `Herd ${this.name} has reached the harvest age.`;
+  this.observers.forEach((observer: Observer) => observer.update(message));
+
+  // const notification = new Notification({
+  //   user: this.user,
+  //   message,
+  // });
+  // notification.save();
+  try {
+    const users = await User.find();
+    users.forEach((user) => {
+      const notification = new Notification({
+        user: user._id,
+        message,
+      });
+      notification.save().catch((err) => {
+        console.error('Error saving notification:', err);
+      });
+    });
+  } catch (err) {
+    console.error('Error fetching users:', err);
+  }
+};
+
+HerdSchema.methods.checkHarvestStatus = function (): void {
+  const age = new Date().valueOf() - this.start_date;
+  const six_month = 1000 * 60 * 60 * 24 * 30 * 6;
+  if (this.status === 'Chưa thu hoạch') {
+    this.notified = true;
+    this.notifyObservers();
+    this.save();
+  }
+};
 
 export default model<IHerd>('Herd', HerdSchema);

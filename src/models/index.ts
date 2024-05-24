@@ -17,6 +17,7 @@ import Processor from './Processor';
 import TraceabilityInfo from './TraceabilityInfo';
 import ProductPatch from './ProductPatch';
 import Distributor from './Distributor';
+import Notification from './Notification';
 
 export {
   User,
@@ -38,4 +39,5 @@ export {
   TraceabilityInfo,
   ProductPatch,
   Distributor,
+  Notification,
 };

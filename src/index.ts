@@ -5,11 +5,12 @@ import express from 'express';
 // others pakages
 // import swaggerDocumentation from './helper/documentation';
 // import swaggerDoc from 'swagger-ui-express';
-import swaggerDocs from '../swagger';
+// import swaggerDocs from '../swagger';
 import cors from 'cors';
 import morgan from 'morgan';
 import bodyParser from 'body-parser';
 import cookieParser from 'cookie-parser';
+import cron from 'node-cron';
 
 //database
 // import connectDB from './db/connect';
@@ -25,8 +26,6 @@ import {
   animalRouter,
   productRouter,
   productInfoRouter,
-  // pestCategoryRouter,
-  // pestRouter,
   diseaseRouter,
   medicineRouter,
   treatmentRouter,
@@ -36,11 +35,14 @@ import {
   processorRouter,
   productPatchRouter,
   distributorRouter,
+  noticationRouter,
 } from './routers';
 
 //middlewares
 import errorHandlerMiddleware from './middlewares/error-handler';
-import http from 'http';
+
+// services
+import HerdMonitoringService from './services/herd-monitoring-service';
 
 //config dotenv
 config();
@@ -70,8 +72,6 @@ app.use('/api/v1/products', productRouter);
 app.use('/api/v1/product-infos', productInfoRouter);
 app.use('/api/v1/cultivation-logs', cultivationLogRouter);
 app.use('/api/v1/activities', activityRouter);
-// app.use('/api/v1/pest-categories', pestCategoryRouter);
-// app.use('/api/v1/pests', pestRouter);
 app.use('/api/v1/diseases', diseaseRouter);
 app.use('/api/v1/medicines', medicineRouter);
 app.use('/api/v1/treatments', treatmentRouter);
@@ -80,8 +80,19 @@ app.use('/api/v1/processors', processorRouter);
 app.use('/api/v1/product-patchs', productPatchRouter);
 app.use('/api/v1/distributors', distributorRouter);
 app.use('/api/v1/qrcode', qrCodeRouter);
+app.use('/api/v1/notifications', noticationRouter);
 
 app.use(errorHandlerMiddleware);
+
+const herdMonitoringService = new HerdMonitoringService();
+cron.schedule('* * * * *', async () => {
+  try {
+    await herdMonitoringService.monitorHerds();
+    console.log('Herd monitoring job executed');
+  } catch (error) {
+    console.error('Error during herd monitoring job:', error);
+  }
+});
 
 const start = async () => {
   const serverGlobal = ServerGlobal.getInstance();
@@ -89,15 +100,9 @@ const start = async () => {
   // console.log('compare::', serverGlobal === server2);
   try {
     await serverGlobal.connectDB(process.env.DB_URI);
-    app.set('port', port);
-    const server = http.createServer(app);
-    serverGlobal.logger.info(`Server is running on port ${port}`);
-
-    // await connectDB(process.env.DB_URI);
-    // app.listen(port, () => {
-    //   console.log(`Server is listening at port ${port}`);
-    // });
-    // swaggerDocs(app, 5000);
+    app.listen(port, () => {
+      serverGlobal.logger.info(`Server is running on port ${port}`);
+    });
   } catch (error) {
     serverGlobal.logger.error(`Failed to start server: ${error}`);
   }
