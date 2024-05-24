@@ -85,6 +85,8 @@ app.use('/api/v1/notifications', noticationRouter);
 app.use(errorHandlerMiddleware);
 
 const herdMonitoringService = new HerdMonitoringService();
+
+// cron.schedule('0 0 * * *', async () => {
 cron.schedule('* * * * *', async () => {
   try {
     await herdMonitoringService.monitorHerds();

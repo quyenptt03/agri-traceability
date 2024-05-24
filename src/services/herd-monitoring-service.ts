@@ -12,7 +12,7 @@ class HerdMonitoringService {
   async monitorHerds(): Promise<void> {
     const herds = await Herd.find({
       status: 'Chưa thu hoạch',
-      notified: false,
+      // notified: false,
     }).exec();
     herds.forEach((herd) => {
       herd.registerObserver(this.notificationService);

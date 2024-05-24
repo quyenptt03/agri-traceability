@@ -130,12 +130,13 @@ HerdSchema.methods.notifyObservers = async function (): Promise<void> {
   }
 };
 
-HerdSchema.methods.checkHarvestStatus = function (): void {
+HerdSchema.methods.checkHarvestStatus = async function (): Promise<void> {
   const age = new Date().valueOf() - this.start_date;
   const six_month = 1000 * 60 * 60 * 24 * 30 * 6;
+  // if (this.status === 'Chưa thu hoạch' && !this.notified && age > six_month) {
   if (this.status === 'Chưa thu hoạch') {
     this.notified = true;
-    this.notifyObservers();
+    await this.notifyObservers();
     this.save();
   }
 };
