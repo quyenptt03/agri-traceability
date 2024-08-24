@@ -100,9 +100,12 @@ const start = async () => {
   const serverGlobal = ServerGlobal.getInstance();
   try {
     await serverGlobal.connectDB(process.env.DB_URI);
-    app.listen(port, () => {
-      serverGlobal.logger.info(`Server is running on port ${port}`);
-    });
+
+    if (process.env.NODE_ENV !== 'test') {
+      app.listen(port, () => {
+        serverGlobal.logger.info(`Server is running on port ${port}`);
+      });
+    }
   } catch (error) {
     serverGlobal.logger.error(`Failed to start server: ${error}`);
   }

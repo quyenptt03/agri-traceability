@@ -9,7 +9,7 @@
   "scripts": {
     "start": "ts-node src/index.ts",
     "dev": "nodemon start",
-    "test": "jest --watchAll"
+    "test": "jest --watchAll --maxWorkers=1"
   },
   "jest": {
     "preset": "ts-jest",
