@@ -7,12 +7,10 @@ env:
 on:
   push:
     branches-ignore: ['main']
-  pull_request:
-    branches-ignore: ['main']
 
 jobs:
   Test:
-    runs-on: ubuntu-lastest
+    runs-on: ubuntu-latest
 
     strategy:
       matrix:
