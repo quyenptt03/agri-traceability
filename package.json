@@ -9,8 +9,7 @@
   "scripts": {
     "start": "ts-node src/index.ts",
     "dev": "nodemon start",
-    "test": "jest --watchAll --maxWorkers=1",
-    "test:prod": "jest --watchAll --maxWorkers=1 --browsers=ChromeHeadLess --watch=false --code-coverage"
+    "test": "jest --watchAll --maxWorkers=1"
   },
   "jest": {
     "preset": "ts-jest",
