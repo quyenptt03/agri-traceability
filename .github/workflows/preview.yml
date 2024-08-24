@@ -14,7 +14,24 @@ on:
     branches: ['main']
 
 jobs:
-  Deploy-Production:
+  Test:
+    runs-on: ubuntu-lastest
+    - uses: actions/checkout@v4
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v4
+      with:
+          node-version: ${{ matrix.node-version }}
+          cache: 'npm'
+
+    - name: Install Vercel CLI
+      run: npm ci
+
+    - name: Test
+      run: npm test:prod
+
+
+  Deploy-Preview:
+    needs: [Test]
     runs-on: ubuntu-latest
 
     strategy:
