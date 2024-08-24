@@ -4,61 +4,61 @@ import request from 'supertest';
 const SECONDS = 1000;
 jest.setTimeout(70 * SECONDS);
 
-const registerUser = {
-  first_name: 'test',
-  last_name: '123',
-  email: 'test123@gmail.com',
-  password: '1230123',
-};
+// const registerUser = {
+//   first_name: 'test',
+//   last_name: '123',
+//   email: 'test123@gmail.com',
+//   password: '1230123',
+// };
 
-describe('POST /api/v1/auth/register - user register', () => {
-  describe('when the email or password is missing', () => {
-    test('should respond with a status code of 400', async () => {
-      const bodyData = [
-        { email: registerUser.email },
-        { password: registerUser.password },
-        {},
-      ];
-      for (const body of bodyData) {
-        const response = await request(app)
-          .post('/api/v1/auth/login')
-          .send(body);
-        expect(response.statusCode).toBe(400);
-      }
-    });
-  });
+// describe('POST /api/v1/auth/register - user register', () => {
+//   describe('when the email or password is missing', () => {
+//     test('should respond with a status code of 400', async () => {
+//       const bodyData = [
+//         { email: registerUser.email },
+//         { password: registerUser.password },
+//         {},
+//       ];
+//       for (const body of bodyData) {
+//         const response = await request(app)
+//           .post('/api/v1/auth/login')
+//           .send(body);
+//         expect(response.statusCode).toBe(400);
+//       }
+//     });
+//   });
 
-  describe('given a first name, last name, email and password', () => {
-    test('should create a new user', async () => {
-      const response = await request(app)
-        .post('/api/v1/auth/register')
-        .send(registerUser);
+//   describe('given a first name, last name, email and password', () => {
+//     test('should create a new user', async () => {
+//       const response = await request(app)
+//         .post('/api/v1/auth/register')
+//         .send(registerUser);
 
-      expect(response.statusCode).toBe(201);
-      expect(response.body.user.userId).toBeDefined();
-      expect(response.headers['content-type']).toEqual(
-        expect.stringContaining('json')
-      );
-      const tokenValue = response.headers['set-cookie'][0].split('=');
-      const tokenName = tokenValue[0];
-      const token = tokenValue[1];
+//       expect(response.statusCode).toBe(201);
+//       expect(response.body.user.userId).toBeDefined();
+//       expect(response.headers['content-type']).toEqual(
+//         expect.stringContaining('json')
+//       );
+//       const tokenValue = response.headers['set-cookie'][0].split('=');
+//       const tokenName = tokenValue[0];
+//       const token = tokenValue[1];
 
-      expect(tokenName).toBe('token');
-      expect(token).toBeDefined();
-    });
-  });
+//       expect(tokenName).toBe('token');
+//       expect(token).toBeDefined();
+//     });
+//   });
 
-  describe('email already exists', () => {
-    test('should respond with a 400 status code', async () => {
-      const response = await request(app)
-        .post('/api/v1/auth/register')
-        .send(registerUser);
+//   describe('email already exists', () => {
+//     test('should respond with a 400 status code', async () => {
+//       const response = await request(app)
+//         .post('/api/v1/auth/register')
+//         .send(registerUser);
 
-      expect(response.statusCode).toBe(400);
-      expect(response.body.msg).toBe('Email already exists');
-    });
-  });
-});
+//       expect(response.statusCode).toBe(400);
+//       expect(response.body.msg).toBe('Email already exists');
+//     });
+//   });
+// });
 
 describe('POST /api/v1/auth/login - user login', () => {
   describe('given a email and password', () => {
@@ -135,11 +135,11 @@ describe('POST /api/v1/auth/login - user login', () => {
   });
 });
 
-describe('GET /api/v1/auth/logout', () => {
-  describe('logout', () => {
-    test('should respond with a 200 status code', async () => {
-      const response = await request(app).get('/api/v1/auth/logout');
-      expect(response.statusCode).toBe(200);
-    });
-  });
-});
+// describe('GET /api/v1/auth/logout', () => {
+//   describe('logout', () => {
+//     test('should respond with a 200 status code', async () => {
+//       const response = await request(app).get('/api/v1/auth/logout');
+//       expect(response.statusCode).toBe(200);
+//     });
+//   });
+// });

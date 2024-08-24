@@ -13,7 +13,7 @@ import cookieParser from 'cookie-parser';
 import cron from 'node-cron';
 
 //database
-// import connectDB from './db/connect';
+import connectDB from './db/connect';
 import ServerGlobal from './db/server-global';
 //routes
 import {
@@ -90,7 +90,7 @@ cron.schedule('0 0 * * *', async () => {
   // cron.schedule('* * * * *', async () => {
   try {
     await herdMonitoringService.monitorHerds();
-    console.log('Herd monitoring job executed');
+    // console.log('Herd monitoring job executed');
   } catch (error) {
     console.error('Error during herd monitoring job:', error);
   }
@@ -98,8 +98,6 @@ cron.schedule('0 0 * * *', async () => {
 
 const start = async () => {
   const serverGlobal = ServerGlobal.getInstance();
-  // const server2 = ServerGlobal.getInstance();
-  // console.log('compare::', serverGlobal === server2);
   try {
     await serverGlobal.connectDB(process.env.DB_URI);
     app.listen(port, () => {
@@ -108,6 +106,14 @@ const start = async () => {
   } catch (error) {
     serverGlobal.logger.error(`Failed to start server: ${error}`);
   }
+  // try {
+  //   await connectDB(process.env.DB_URI);
+  //   app.listen(port, () => {
+  //     console.log(`Server is listening at port ${port}`);
+  //   });
+  // } catch (error) {
+  //   console.log(error);
+  // }
 };
 
 start();

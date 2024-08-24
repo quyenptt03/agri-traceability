@@ -5,7 +5,7 @@ const SECONDS = 1000;
 jest.setTimeout(700 * SECONDS);
 
 const newHarvest = {
-  herd: '66099000d1a4bbf859da046e',
+  herd: '66059f884216273d4d6593ed',
   name: 'Sua de',
   quantity: 6,
   unit: 'lit',

@@ -7,7 +7,7 @@ jest.setTimeout(700 * SECONDS);
 const newCultivationLog = {
   name: 'Cho bú sữa',
   description: 'mô tả',
-  herd: '66099000d1a4bbf859da046e',
+  herd: '66059f884216273d4d6593ed',
   date: '2024-05-21',
 };
 

@@ -5,7 +5,7 @@ const SECONDS = 1000;
 jest.setTimeout(700 * SECONDS);
 
 const newMedicine = {
-  name: 'test Thuoc diet chuot',
+  name: 'Thuoc trị đậu dê',
   description: 'mo ta thuoc diet chuot',
   ingredients: 'ingredients dkgjdfjgdfg',
   usage_instruction: 'string',
