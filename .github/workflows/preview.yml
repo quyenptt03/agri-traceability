@@ -26,11 +26,9 @@ jobs:
           node-version: ${{ matrix.node-version }}
           cache: 'npm'
 
-      - name: Install Vercel CLI
-        run: npm ci
+      - run: npm ci
 
-      - name: Testing
-        run: npm test
+      - run: npm test
 
   Deploy-Preview:
     needs: [Test]
