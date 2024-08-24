@@ -9,7 +9,7 @@
   "scripts": {
     "start": "ts-node src/index.ts",
     "dev": "nodemon start",
-    "test": "jest --watchAll --maxWorkers=1"
+    "test": "jest --watchAll --maxWorkers=1 --detectOpenHandles"
   },
   "jest": {
     "preset": "ts-jest",
