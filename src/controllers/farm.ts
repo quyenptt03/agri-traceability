@@ -30,7 +30,7 @@ const getAllFarm = async (req: Request, res: Response) => {
   const totalPages: number = Math.ceil(totalCount / limit);
 
   res
-    .status(StatusCodes.NOT_FOUND)
+    .status(StatusCodes.OK)
     .send({ farms, count: farms.length, page, totalPages });
 };
 
