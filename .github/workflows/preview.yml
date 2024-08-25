@@ -7,16 +7,23 @@ env:
 on:
   push:
     branches-ignore: ['main']
-  pull_request:
-    branches-ignore: ['main']
 
 jobs:
   Test:
-    runs-on: ubuntu-lastest
+    runs-on: ubuntu-latest
 
     strategy:
       matrix:
         node-version: [18.x, 20.x, 22.x]
+
+    env:
+      NODE_ENV: test
+      DB_URI: ${{ secrets.DB_URI }}
+      CLOUDINARY_NAME: ${{ secrets.CLOUDINARY_NAME }}
+      CLOUDINARY_KEY: ${{ secrets.CLOUDINARY_KEY }}
+      CLOUDINARY_SECRET: ${{ secrets.CLOUDINARY_SECRET }}
+      JWT_SECRET: ${{ secrets.JWT_SECRET }}
+      JWT_LIFETIME: ${{ secrets.JWT_LIFETIME }}
 
     steps:
       - uses: actions/checkout@v4
@@ -26,11 +33,9 @@ jobs:
           node-version: ${{ matrix.node-version }}
           cache: 'npm'
 
-      - name: Install Vercel CLI
-        run: npm ci
+      - run: npm ci
 
-      - name: Testing
-        run: npm test
+      - run: npm test
 
   Deploy-Preview:
     needs: [Test]
