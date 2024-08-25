@@ -86,15 +86,17 @@ app.use(errorHandlerMiddleware);
 
 const herdMonitoringService = new HerdMonitoringService();
 
-cron.schedule('0 0 * * *', async () => {
-  // cron.schedule('* * * * *', async () => {
-  try {
-    await herdMonitoringService.monitorHerds();
-    // console.log('Herd monitoring job executed');
-  } catch (error) {
-    console.error('Error during herd monitoring job:', error);
-  }
-});
+if (process.env.NODE_ENV != 'test') {
+  cron.schedule('0 0 * * *', async () => {
+    // cron.schedule('* * * * *', async () => {
+    try {
+      await herdMonitoringService.monitorHerds();
+      // console.log('Herd monitoring job executed');
+    } catch (error) {
+      console.error('Error during herd monitoring job:', error);
+    }
+  });
+}
 
 const start = async () => {
   const serverGlobal = ServerGlobal.getInstance();
