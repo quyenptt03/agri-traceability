@@ -17,6 +17,7 @@ import harvestRouter from './harvest';
 import processorRouter from './processor';
 import productPatchRouter from './product-patch';
 import distributorRouter from './distributor';
+import shelterRouter from './shelter';
 import qrCodeRouter from './qrcode';
 import noticationRouter from './notification';
 
@@ -40,6 +41,7 @@ export {
   processorRouter,
   productPatchRouter,
   distributorRouter,
+  shelterRouter,
   qrCodeRouter,
   noticationRouter,
 };

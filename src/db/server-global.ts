@@ -17,10 +17,10 @@ class ServerGlobal {
       ),
       transports: [
         new winston.transports.Console(),
-        new winston.transports.File({
-          filename: path.join(__dirname, '../logs.log'),
-          level: 'info',
-        }),
+        // new winston.transports.File({
+        //   filename: path.join(__dirname, '../logs.log'),
+        //   level: 'info',
+        // }),
       ],
     });
   }

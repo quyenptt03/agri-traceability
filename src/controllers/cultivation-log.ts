@@ -202,19 +202,19 @@ const deleteCultivationLog = async (req: Request, res: Response) => {
     );
   }
   await cultivationLog.deleteOne();
-  if (cultivationLog.images.length !== 0) {
-    remove(cultivationLog.images);
+  if (cultivationLog.mediaUri.length !== 0) {
+    remove(cultivationLog.mediaUri);
   }
   res.status(StatusCodes.OK).json({ msg: 'Success! Cultivation log removed.' });
 };
 
-const uploadImages = async (req: Request, res: Response) => {
+const uploadMediaUri = async (req: Request, res: Response) => {
   if (!req.files) {
     throw new CustomError.BadRequestError('No files uploaded');
   }
   const { id: cultivationLogId } = req.params;
-  const images = req.files as Express.Multer.File[];
-  const imageUrls = await upload(images);
+  const mediaUri = req.files as Express.Multer.File[];
+  const imageUrls = await upload(mediaUri);
 
   const cultivationLog = await CultivationLog.findOne({
     _id: cultivationLogId,
@@ -225,11 +225,11 @@ const uploadImages = async (req: Request, res: Response) => {
       `No cultivation log with id ${cultivationLogId}`
     );
   }
-  if (cultivationLog.images.length !== 0) {
-    remove(cultivationLog.images);
+  if (cultivationLog.mediaUri.length !== 0) {
+    remove(cultivationLog.mediaUri);
   }
 
-  cultivationLog.images = imageUrls;
+  cultivationLog.mediaUri = imageUrls;
   cultivationLog.save();
 
   res.status(StatusCodes.CREATED).json({ cultivationLog });
@@ -244,5 +244,5 @@ export {
   getCultivationLogsByHerd,
   updateHerdCultivationLog,
   deleteCultivationLog,
-  uploadImages,
+  uploadMediaUri,
 };

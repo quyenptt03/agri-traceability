@@ -35,6 +35,7 @@ import {
   processorRouter,
   productPatchRouter,
   distributorRouter,
+  shelterRouter,
   noticationRouter,
 } from './routers';
 
@@ -79,6 +80,7 @@ app.use('/api/v1/harvests', harvestRouter);
 app.use('/api/v1/processors', processorRouter);
 app.use('/api/v1/product-patchs', productPatchRouter);
 app.use('/api/v1/distributors', distributorRouter);
+app.use('/api/v1/shelters', shelterRouter);
 app.use('/api/v1/qrcode', qrCodeRouter);
 app.use('/api/v1/notifications', noticationRouter);
 

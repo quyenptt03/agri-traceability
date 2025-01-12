@@ -6,8 +6,9 @@ interface ICultivationLog {
   name: string;
   description: string;
   notes?: string;
-  images: object[];
+  mediaUri: object[];
   date: Date;
+  shelter: Types.ObjectId;
 }
 
 const cultivationLogSchema = new Schema<ICultivationLog>({
@@ -33,7 +34,7 @@ const cultivationLogSchema = new Schema<ICultivationLog>({
     type: Date,
     default: Date.now(),
   },
-  images: {
+  mediaUri: {
     type: [
       {
         path: String,
@@ -41,6 +42,10 @@ const cultivationLogSchema = new Schema<ICultivationLog>({
       },
     ],
     required: [true, 'Please provide cultivation log images'],
+  },
+  shelter: {
+    type: Schema.Types.ObjectId,
+    ref: 'Shelter',
   },
 });
 
