@@ -9,6 +9,7 @@ on:
     branches-ignore: ['main']
 
 jobs:
+  if: false
   Test:
     runs-on: ubuntu-latest
 

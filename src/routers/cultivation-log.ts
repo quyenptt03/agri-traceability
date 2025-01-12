@@ -6,7 +6,7 @@ import {
   deleteCultivationLog,
   // getCultivationLogsByAnimal,
   getCultivationLogsByHerd,
-  uploadImages,
+  uploadMediaUri,
   // createCultivationLog,
 } from '../controllers/cultivation-log';
 import {
@@ -30,7 +30,7 @@ router.route('/herd/:id').get(authenticateUser, getCultivationLogsByHerd);
 
 router
   .route('/upload/:id')
-  .patch(authenticateUser, uploadCloud.array('images', 10), uploadImages);
+  .patch(authenticateUser, uploadCloud.array('images', 10), uploadMediaUri);
 
 router
   .route('/:id')

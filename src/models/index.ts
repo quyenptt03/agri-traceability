@@ -18,6 +18,7 @@ import TraceabilityInfo from './TraceabilityInfo';
 import ProductPatch from './ProductPatch';
 import Distributor from './Distributor';
 import Notification from './Notification';
+import Shelter from './Shelter';
 
 export {
   User,
@@ -40,4 +41,5 @@ export {
   ProductPatch,
   Distributor,
   Notification,
+  Shelter,
 };

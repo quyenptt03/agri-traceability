@@ -10,6 +10,7 @@ interface IAnimal {
   herd: Types.ObjectId;
   images: object[];
   user: Types.ObjectId;
+  disease: Types.ObjectId;
 }
 
 const animalSchema = new Schema<IAnimal>({
@@ -55,6 +56,10 @@ const animalSchema = new Schema<IAnimal>({
   user: {
     type: Schema.Types.ObjectId,
     ref: 'User',
+  },
+  disease: {
+    type: Schema.Types.ObjectId,
+    ref: 'Disease',
   },
 });
 
