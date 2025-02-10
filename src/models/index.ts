@@ -19,6 +19,7 @@ import ProductPatch from './ProductPatch';
 import Distributor from './Distributor';
 import Notification from './Notification';
 import Shelter from './Shelter';
+import Room from './Room';
 
 export {
   User,
@@ -42,4 +43,5 @@ export {
   Distributor,
   Notification,
   Shelter,
+  Room,
 };

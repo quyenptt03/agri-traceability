@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import { StatusCodes } from 'http-status-codes';
 import CustomError from '../errors';
-import { Animal, Category, Farm, Herd } from '../models';
+import { Animal, Category, Farm, Herd, Room } from '../models';
 import { remove, upload } from './cloudinary';
 
 const getAllHerd = async (req: Request, res: Response) => {
@@ -31,8 +31,8 @@ const getAllHerd = async (req: Request, res: Response) => {
       select: '_id name',
     })
     .populate({
-      path: 'farm',
-      select: '_id name',
+      path: 'room',
+      select: '_id room',
     })
     .populate({
       path: 'records',
@@ -53,7 +53,7 @@ const createHerd = async (req: Request, res: Response) => {
     categoryId,
     description,
     location,
-    farmId,
+    roomId,
     start_date,
     end_date,
   } = req.body;
@@ -65,9 +65,9 @@ const createHerd = async (req: Request, res: Response) => {
   if (!category) {
     throw new CustomError.BadRequestError('Category does not exists.');
   }
-  const farm = await Farm.findOne({ _id: farmId });
-  if (!farm) {
-    throw new CustomError.BadRequestError('Farm does not exists.');
+  const room = await Room.findOne({ _id: roomId });
+  if (!room) {
+    throw new CustomError.BadRequestError('Room does not exists.');
   }
 
   if (!name || !description || !location) {
@@ -81,7 +81,7 @@ const createHerd = async (req: Request, res: Response) => {
     category: category.id,
     description,
     location,
-    farm: farm._id,
+    room: room._id,
     start_date,
     end_date,
   });
@@ -124,9 +124,10 @@ const getHerd = async (req: Request, res: Response) => {
       select: '_id name',
     })
     .populate({
-      path: 'farm',
-      select: '_id name',
+      path: 'room',
+      select: '-_id name',
     })
+    .lean()
     .populate('records');
 
   if (!herd) {
@@ -143,12 +144,12 @@ const updateHerd = async (req: Request, res: Response) => {
     category,
     description,
     member_count,
-    farm,
+    room,
     start_date,
     end_date,
     status,
   } = req.body;
-  let categoryExist, farmExist;
+  let categoryExist, roomExist;
   const herd = await Herd.findOne({ _id: herdId });
   if (!herd) {
     throw new CustomError.NotFoundError(`No herd with id ${herdId}`);
@@ -181,13 +182,13 @@ const updateHerd = async (req: Request, res: Response) => {
     herd.category = category;
   }
 
-  if (farm) {
-    farmExist = await Farm.findOne({ _id: farm });
-    if (!farmExist) {
-      throw new CustomError.BadRequestError('Farm does not exists.');
+  if (room) {
+    roomExist = await Room.findOne({ _id: room });
+    if (!roomExist) {
+      throw new CustomError.BadRequestError('Room does not exists.');
     }
 
-    herd.farm = farm;
+    herd.room = room;
   }
   await herd.save();
 
