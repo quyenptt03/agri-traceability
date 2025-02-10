@@ -22,6 +22,7 @@ import {
   categoryRouter,
   cultivationLogRouter,
   farmRouter,
+  roomRouter,
   herdRouter,
   animalRouter,
   productRouter,
@@ -67,6 +68,7 @@ app.use('/api/v1/auth', authRouter);
 app.use('/api/v1/users', userRouter);
 app.use('/api/v1/categories', categoryRouter);
 app.use('/api/v1/farms', farmRouter);
+app.use('/api/v1/rooms', roomRouter);
 app.use('/api/v1/herds', herdRouter);
 app.use('/api/v1/animals', animalRouter);
 app.use('/api/v1/products', productRouter);

@@ -2,6 +2,7 @@ import authRouter from './auth';
 import userRouter from './user';
 import categoryRouter from './category';
 import farmRouter from './farm';
+import roomRouter from './room';
 import herdRouter from './herd';
 import animalRouter from './animal';
 import productRouter from './product';
@@ -26,6 +27,7 @@ export {
   userRouter,
   categoryRouter,
   farmRouter,
+  roomRouter,
   herdRouter,
   animalRouter,
   productRouter,

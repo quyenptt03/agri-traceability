@@ -1,23 +1,21 @@
 import { Request, Response } from 'express';
 import { StatusCodes } from 'http-status-codes';
-import { Farm, Shelter } from '../models';
+import { Room, Shelter } from '../models';
 import CustomError from '../errors';
 
 const getAllShelters = async (req: Request, res: Response) => {
-  const shelters = await Shelter.find({});
+  const shelters = await Shelter.find({}).populate({
+    path: 'room',
+    select: '-_id name',
+  });
   res.status(StatusCodes.OK).json({ shelters, count: shelters.length });
 };
 
 const createShelter = async (req: Request, res: Response) => {
-  const { farm, cameraId } = req.body;
-
-  const farmExist = await Farm.findOne({ _id: farm });
-  if (!farmExist) {
-    throw new CustomError.BadRequestError('Farm does not exists.');
-  }
+  const { room, cameraId } = req.body;
 
   const shelter = await Shelter.create({
-    farm,
+    room,
     cameraId,
   });
 
@@ -28,6 +26,9 @@ const getShelter = async (req: Request, res: Response) => {
   const { id: shelterId } = req.params;
   const shelter = await Shelter.findOne({
     _id: shelterId,
+  }).populate({
+    path: 'room',
+    select: '-_id name',
   });
 
   if (!shelter) {
@@ -39,12 +40,12 @@ const getShelter = async (req: Request, res: Response) => {
 
 const updateShelter = async (req: Request, res: Response) => {
   const { id: shelterId } = req.params;
-  let farmExist;
+  let roomExist;
 
   if (req.body.herd) {
-    farmExist = await Farm.findOne({ _id: req.body.farm });
-    if (!farmExist) {
-      throw new CustomError.BadRequestError('Farm does not exists.');
+    roomExist = await Room.findOne({ _id: req.body.room });
+    if (!roomExist) {
+      throw new CustomError.BadRequestError('Room does not exists.');
     }
   }
 
@@ -66,6 +67,8 @@ const deleteShelter = async (req: Request, res: Response) => {
   if (!shelter) {
     throw new CustomError.NotFoundError(`No shelter with id ${shelterId}`);
   }
+
+  await shelter.deleteOne();
 
   res.status(StatusCodes.OK).json({ msg: 'Success! Shelter removed' });
 };

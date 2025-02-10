@@ -8,7 +8,7 @@ interface IHerd {
   description: string;
   location: string;
   images: object[];
-  farm: Types.ObjectId;
+  room: Types.ObjectId;
   member_count: number;
   start_date: Date;
   end_date: Date;
@@ -56,9 +56,9 @@ const HerdSchema = new Schema<IHerd>(
       type: Number,
       default: 0,
     },
-    farm: {
+    room: {
       type: Schema.Types.ObjectId,
-      ref: 'Farm',
+      ref: 'Room',
       require: true,
     },
     start_date: {

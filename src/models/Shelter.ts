@@ -1,15 +1,15 @@
 import { Schema, model, Types } from 'mongoose';
 
 interface IShelter {
-  farm: Types.ObjectId;
+  room: Types.ObjectId;
   cameraId: String;
 }
 
 const shelterSchema = new Schema<IShelter>({
-  farm: {
+  room: {
     type: Schema.Types.ObjectId,
-    ref: 'Farm',
-    required: [true, 'Please enter farm id'],
+    ref: 'Room',
+    required: [true, 'Please enter room id'],
   },
   cameraId: {
     type: 'String',
