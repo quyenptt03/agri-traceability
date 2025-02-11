@@ -21,6 +21,7 @@ import distributorRouter from './distributor';
 import shelterRouter from './shelter';
 import qrCodeRouter from './qrcode';
 import noticationRouter from './notification';
+import resourceRouter from './resource';
 
 export {
   authRouter,
@@ -46,4 +47,5 @@ export {
   shelterRouter,
   qrCodeRouter,
   noticationRouter,
+  resourceRouter,
 };

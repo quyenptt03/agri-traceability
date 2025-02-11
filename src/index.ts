@@ -38,6 +38,7 @@ import {
   distributorRouter,
   shelterRouter,
   noticationRouter,
+  resourceRouter,
 } from './routers';
 
 //middlewares
@@ -77,6 +78,7 @@ app.use('/api/v1/cultivation-logs', cultivationLogRouter);
 app.use('/api/v1/activities', activityRouter);
 app.use('/api/v1/diseases', diseaseRouter);
 app.use('/api/v1/medicines', medicineRouter);
+app.use('/api/v1/resources', resourceRouter);
 app.use('/api/v1/treatments', treatmentRouter);
 app.use('/api/v1/harvests', harvestRouter);
 app.use('/api/v1/processors', processorRouter);
