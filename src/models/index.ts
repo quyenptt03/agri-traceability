@@ -7,6 +7,7 @@ import Farm from './Farm';
 import Herd from './Herd';
 import Animal from './Animal';
 import Medicine from './Medicine';
+import Resource from './Resource';
 import Pest from './Pest';
 import PestCategory from './PestCategory';
 import Treatment from './Treatment';
@@ -31,6 +32,7 @@ export {
   Animal,
   Farm,
   Medicine,
+  Resource,
   Pest,
   PestCategory,
   Treatment,
