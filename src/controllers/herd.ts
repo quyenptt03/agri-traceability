@@ -32,7 +32,7 @@ const getAllHerd = async (req: Request, res: Response) => {
     })
     .populate({
       path: 'room',
-      select: '_id room',
+      select: '_id name',
     })
     .populate({
       path: 'records',
