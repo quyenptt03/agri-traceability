@@ -34,13 +34,15 @@ const getAllResources = async (req: Request, res: Response) => {
 };
 
 const createResource = async (req: Request, res: Response) => {
-  const { name, quantity, remain_qty, use_date, received_date } = req.body;
+  const { name, quantity, remain_qty, use_date, received_date, usage } =
+    req.body;
   const resource = await Resource.create({
     name,
     quantity,
     remain_qty,
     use_date,
     received_date,
+    usage,
   });
 
   if (!name) {
