@@ -34,13 +34,18 @@ const getAllResources = async (req: Request, res: Response) => {
 };
 
 const createResource = async (req: Request, res: Response) => {
-  const { name, description, symptoms, preventive_measures } = req.body;
+  const { name, quantity, remain_qty, use_date, received_date } = req.body;
   const resource = await Resource.create({
     name,
-    description,
-    symptoms,
-    preventive_measures,
+    quantity,
+    remain_qty,
+    use_date,
+    received_date,
   });
+
+  if (!name) {
+    throw new CustomError.BadRequestError('Please provide name of resources');
+  }
   res.status(StatusCodes.CREATED).json({ resource });
 };
 
