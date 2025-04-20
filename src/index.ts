@@ -39,6 +39,7 @@ import {
   shelterRouter,
   noticationRouter,
   resourceRouter,
+  analysisRouter,
 } from './routers';
 
 //middlewares
@@ -87,6 +88,7 @@ app.use('/api/v1/distributors', distributorRouter);
 app.use('/api/v1/shelters', shelterRouter);
 app.use('/api/v1/qrcode', qrCodeRouter);
 app.use('/api/v1/notifications', noticationRouter);
+app.use('/api/v1/analysis', analysisRouter);
 
 app.use(errorHandlerMiddleware);
 
