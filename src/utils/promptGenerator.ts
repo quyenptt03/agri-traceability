@@ -16,7 +16,6 @@ function generatePrompt(events: any[] = []) {
     prompt += `Ghi chú: ${event.note || 'Không có ghi chú'}\n\n`;
   });
 
-  console.log('Generated prompt:', prompt);
   return prompt;
 }
 
@@ -33,7 +32,7 @@ function generatePromptForHerds(herds: any[] = []) {
       2. Đánh giá hiện trạng.
       3. Đưa ra khuyến nghị phù hợp.
 
-      Trình bày câu trả lời theo từng vật nuôi, mỗi loại gồm:
+      Trình bày câu trả lời theo từng vật nuôi và định dạng kết quả bằng Markdown (tiêu đề, danh sách), mỗi loại gồm:
       - Xu hướng:
       - Nhận định:
       - Khuyến nghị:
@@ -41,9 +40,7 @@ function generatePromptForHerds(herds: any[] = []) {
       Dưới đây là dữ liệu:\n\n`;
   herds.forEach((herd) => {
     prompt += `ID: ${herd.name}\n`;
-    prompt += `Dữ liệu số lượng đàn từ ngày ${herd.from_date} tới ngày ${
-      herd.to_date
-    }: ${herd.history.join('')}\n`;
+    prompt += `Dữ liệu số lượng đàn từ trong ${herd.time}}: ${herd.history}\n`;
     prompt += `Ghi chú: ${herd.note || 'Không có ghi chú'}\n\n`;
   });
 
@@ -64,7 +61,7 @@ function generatePromptForResources(resources: any[] = []) {
     2. Đánh giá hiện trạng.
     3. Đưa ra khuyến nghị phù hợp.
 
-    Trình bày câu trả lời theo từng vật nuôi, mỗi loại gồm:
+    Trình bày câu trả lời theo từng tài nguyên, mỗi loại gồm. Định dạng kết quả bằng Markdown (dùng code block, tiêu đề, danh sách):
     - Xu hướng:
     - Nhận định:
     - Khuyến nghị:`;
