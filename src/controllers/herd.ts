@@ -237,6 +237,37 @@ const uploadImages = async (req: Request, res: Response) => {
   res.status(StatusCodes.CREATED).json({ herd });
 };
 
+const getAnimalStatisticsByTime = async (req: Request, res: Response) => {
+  const { id: herdId } = req.params;
+
+  const herd = await Herd.findOne({ _id: herdId });
+  if (!herd) {
+    throw new CustomError.NotFoundError(`No herd with id ${herdId}`);
+  }
+
+  // Nhóm số lượng động vật theo tháng-năm (YYYY-MM)
+  const statistics = await Animal.aggregate([
+    {
+      $match: {
+        herd: herd._id,
+      },
+    },
+    {
+      $group: {
+        _id: {
+          $dateToString: { format: '%Y-%m', date: '$birth_date' },
+        },
+        count: { $sum: 1 },
+      },
+    },
+    {
+      $sort: { _id: 1 }, // Sắp xếp theo thời gian tăng dần
+    },
+  ]);
+
+  res.status(StatusCodes.OK).json({ herd: herd.name, statistics });
+};
+
 const seperateHerd = async (req: Request, res: Response) => {
   const { id: herdId } = req.params;
   const herd = Herd.findOne({ _id: herdId });
@@ -250,4 +281,5 @@ export {
   getHerd,
   updateHerd,
   uploadImages,
+  getAnimalStatisticsByTime,
 };
