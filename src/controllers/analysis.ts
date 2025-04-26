@@ -7,12 +7,12 @@ import {
   generatePromptForHerds,
   generatePromptForResources,
   generatePromptForDiseases,
+  generatePromptOverForFarm,
 } from '../utils/promptGenerator';
 
 const analysisCount = async (req: Request, res: Response) => {
   const prompt = generatePrompt(req.body);
   const result = await analyzeFarmEvents(prompt);
-  console.log('Result from analyzeFarmEvents:', result);
   if (!result) {
     throw new CustomError.BadRequestError('Failed to analyze events data');
   }
@@ -21,9 +21,9 @@ const analysisCount = async (req: Request, res: Response) => {
 
 const analysisHerd = async (req: Request, res: Response) => {
   const prompt = generatePromptForHerds(req.body);
+  console.log(prompt);
 
   const result = await analyzeFarmEvents(prompt);
-  console.log('Result from analyzeFarmEvents:', result);
   if (!result) {
     throw new CustomError.BadRequestError('Failed to analyze events data');
   }
@@ -47,4 +47,19 @@ const analysisDiseases = async (req: Request, res: Response) => {
   res.status(StatusCodes.OK).json({ analysis: result });
 };
 
-export { analysisCount, analysisHerd, analysisResources, analysisDiseases };
+const analysisFarm = async (req: Request, res: Response) => {
+  const prompt = generatePromptOverForFarm(req.body);
+  const result = await analyzeFarmEvents(prompt);
+  if (!result) {
+    throw new CustomError.BadRequestError('Failed to analyze events data');
+  }
+  res.status(StatusCodes.OK).json({ analysis: result });
+};
+
+export {
+  analysisCount,
+  analysisHerd,
+  analysisResources,
+  analysisDiseases,
+  analysisFarm,
+};

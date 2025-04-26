@@ -98,9 +98,44 @@ function generatePromptForDiseases(diseases: any[] = []) {
   return prompt;
 }
 
+function generatePromptOverForFarm(data: any[] = []) {
+  if (data.length === 0) {
+    return 'Không có dữ liệu nào để phân tích.';
+  }
+  let prompt = `Hãy phân tích thống kê trang trại dựa trên các yếu tố sau:
+      1. Số lượng của từng đàn:
+      - Liệt kê số lượng của từng loại đàn (ví dụ: gia súc, gia cầm, v.v.), bao gồm các giống hoặc nhóm đàn trong trang trại.
+      - Cung cấp thông tin chi tiết về số lượng của từng đàn theo từng thời điểm (theo ngày, tuần, tháng).
+
+      2. Tài nguyên sử dụng:
+      - Thống kê mức độ sử dụng các tài nguyên trong trang trại, bao gồm:
+      - Thức ăn cho vật nuôi
+      - Tính toán tổng mức sử dụng các tài nguyên này trong một khoảng thời gian cụ thể (theo ngày, tuần, tháng).
+      3. Tỉ lệ nhập kho:
+      - Tính toán tỷ lệ giữa lượng tài nguyên nhập kho so với tổng lượng tài nguyên tiêu thụ trong một khoảng thời gian.
+      - Đưa ra các chỉ số về hiệu quả sử dụng tài nguyên và khả năng dự trữ của trang trại.
+
+      Hãy phân tích các dữ liệu này và cung cấp các kết quả sau. Định dạng kết quả bằng Markdown:
+      - Xu hướng thay đổi của số lượng đàn và tài nguyên sử dụng.
+      - Đánh giá tình hình hiện tại của tài nguyên và đàn trong trang trại.
+      - Khuyến nghị
+      Dưới đây là dữ liệu:\n\n`;
+
+  data.forEach((data) => {
+    prompt += `ID: ${data.name}\n`;
+    prompt += `Dữ liệu số lượng các đàn từ trong ${data.time}}: ${data.herd}\n`;
+    prompt += `Dữ liệu tài nguyên từ trong ${data.time}}: ${data.resource}\n`;
+    prompt += `Tỉ lệ nhập kho trong ${data.time}}: ${data.import_rate}\n`;
+    prompt += `Ghi chú: ${data.note || 'Không có ghi chú'}\n\n`;
+  });
+
+  return prompt;
+}
+
 export {
   generatePrompt,
   generatePromptForHerds,
   generatePromptForResources,
   generatePromptForDiseases,
+  generatePromptOverForFarm,
 };
